@@ -44,6 +44,28 @@ module OSMExplorator
   end
 
   class User
+    def initialize
+      # add some user data
+
+      @nodeinstances = []
+      @wayinstances = []
+      @relationinstances = []
+    end
+
+    # the unfiltered array of all nodes of the user
+    def allnodeinstances
+      @nodeinstances
+    end
+
+    def nodeinstances(params=@datastore.filter)
+      f = params2filter(params)
+      NodesInstancesEnumerator.new(@nodeinstancess, f)
+    end
+
+    def nodes(params=@datastore.filter)
+      f = params2filter(params)
+      NodesFromInstancesEnumerator.new(@nodeinstancess, f)
+    end
   end
 
   class NodeInstance
@@ -55,24 +77,14 @@ module OSMExplorator
   class RelationInstance
   end
 
-  class BasicView
-    include Enumerable
+  class BasicEnumerator < Enumerator
 
-    # Creates a new View. 
-    # _list_ is some kind of Enumerable, e.g. an Array or Set.
-    def initialize(list, filter)
-      @list = list
-      @filter = filter
-    end
     def size
       l = 0
       each { l += 1 }
       l
     end
     alias length size
-    def each &block    
-      @list.each { |i| block.call(i) if allowed?(i) }
-    end
 
     # whether a given object is seen through this view. To be
     # overwritten in subclasses.
@@ -84,7 +96,7 @@ module OSMExplorator
     #
     # Equal to but much more efficient than #to_a.first
     #
-    # Please note that this gives no predictable results on Views of
+    # Please note that this gives no predictable results on Enumerators of
     # Set and other non-ordered Enumerables
     def first
       find { |i| allowed?(i)}
@@ -95,7 +107,7 @@ module OSMExplorator
     # Equal to but much more efficient than #to_a.last 
     # (for ordered Enumerables)
     #
-    # Please note that this gives no predictable results on Views of
+    # Please note that this gives no predictable results on Enumerators of
     # Set and other non-ordered Enumerables
     def last
       if @list.respond_to?(:reverse_each)
@@ -108,23 +120,52 @@ module OSMExplorator
   end
 
   # A view on an empty list singleton.
-  class EmptyView < BasicView
+  class EmptyEnumerator < BasicEnumerator
     include Singleton
     def initialize
       @list = []
     end
   end
 
-  class NodesView < BasicView
+  class GenericEnumerator < BasicEnumerator
+    def initialize(&block)
+      @block = block
+    end
+    def allowed?(obj)
+      @block.call(obj)
+    end
   end
 
-  class WaysView < BasicView
+  class NodesEnumerator < BasicEnumerator
   end
 
-  class RelationsView < BasicView
+  class WaysEnumerator < BasicEnumerator
   end
 
-  class UsersView < BasicView
+  class RelationsEnumerator < BasicEnumerator
   end
 
+  class UsersEnumerator < BasicEnumerator
+  end
+
+  class UsersFromInstancesEnumerator < BasicEnumerator
+    def initialize(instances, filter)
+      super() do |y|
+        instances.each do |i|
+          y.yield(i.user) if true # some complicated evaluation on filter
+        end
+      end
+    end
+  end
+
+  class < self
+
+    def params2filter(params)
+      if params.kind_of(Filter)
+        params
+      else
+        params[:filter] || default
+      end
+    end
+  end
 end
