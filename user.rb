@@ -7,10 +7,10 @@ module OSMExplorator
   # of regions.
   class User
   
-    attr_reader :id, :name
+    attr_reader :userid, :name
     
-    def initialize(id, name)
-      @id = id
+    def initialize(userid, name)
+      @userid = userid
       @name = name
       
       @regions = []
@@ -30,14 +30,14 @@ module OSMExplorator
     
     # Even though they are in fact instances of nodes, ways and relations
     # it is convenient to just call them the nodes, ways and relations.
-    alias_method :nodeInstances, :nodes
-    alias_method :wayInstances, :ways
-    alias_method :relationInstances, :relations
+    alias_method :nodes, :nodeInstances
+    alias_method :ways, :wayInstances
+    alias_method :relations, :relationInstances
     
     # Marks this user active in this region
     def add_to_region(region)
       raise "region must not be nil!" if region.nil?
-      raise "region must be a Region!" if region.kind_of?(Region)
+      raise "region must be a Region!" unless region.kind_of?(Region)
       
       @regions << region
     end

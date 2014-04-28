@@ -6,24 +6,24 @@ module OSMExplorator
   # It can be part of several regions.
   # It manages all its instances which occured over time. The latest
   # version of this relation is called the current instance.
-  class Way
-    attr_reader :id
+  class Relation
+    attr_reader :relationid
     attr_accessor :current
     
     # Creates a new relation with current as its current instance
     def initialize(current)
       raise "current must not be nil!" if current.nil?
-      raise "current must be a NodeInstance!" if current.kind_of?(RelationInstance)
+      raise "current must be a NodeInstance!" unless current.kind_of?(RelationInstance)
       
       @current = current
-      @id = current.id
+      @relationid = current.relationid
       @regions = []
     end
     
     # Marks this relation as part of the region
     def add_to_region(region)
       raise "region must not be nil!" if region.nil?
-      raise "region must be a Region!" if region.kind_of?(Region)
+      raise "region must be a Region!" unless region.kind_of?(Region)
       
       @regions << region
     end
@@ -41,17 +41,17 @@ module OSMExplorator
   
   
   # A RelationInstance is a concrete relation which existed at some point in time.
-  # It is identified by its id and version and can refer to a number of
+  # It is identified by its relationid and version and can refer to a number of
   # nodes, ways or other relations.
-  class WayInstance
-    attr_reader :id, :version, 
+  class RelationInstance
+    attr_reader :relationid, :version, 
                 :nodes, :ways, :relations,
                 :timestamp, :changeset,
                 :user,
                 :tags
     
     # params must be a hash with
-    # a numeric :id and :version,
+    # a numeric :relationid and :version,
     # :nodes an array of Node objects,
     # :ways an array of Way objects,
     # :relations an array of Relation objects,
@@ -60,7 +60,7 @@ module OSMExplorator
     def initialize(params)
       raise "params must not be nil!" if params.nil?
       
-      @id = params[:id]
+      @relationid = params[:relationid]
       @version = params[:version]
       
       @nodes = params[:nodes]

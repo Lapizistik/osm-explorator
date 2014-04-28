@@ -67,7 +67,7 @@ module OSMExplorator
     end
 
     # Class methods
-    class < self
+    class << self
     
       # Returns a Datastore object loaded from the filepath specified
       def load(filepath)

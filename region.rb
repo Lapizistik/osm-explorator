@@ -2,18 +2,19 @@
 
 module OSMExplorator
 
-  # A region is a part of the world
-  # which contains nodes, ways, relations and users.
+  # A Region is a part of the world
+  # which contains nodes, ways, relations and the users who
+  # created or changed these objects.
   #
   # Regions are managed by Datastore objects.
   class Region
    
     # A region must have an id and belong to a datastore
-    def initialize(id, datastore)
-      raise "id must not be nil!" if id.nil?
+    def initialize(regionid, datastore)
+      raise "regionid must not be nil!" if regionid.nil?
       raise "datastore must not be nil!" if datastore.nil?
       
-      @id = id
+      @regionid = regionid
       @datastore = datastore
     end
      
