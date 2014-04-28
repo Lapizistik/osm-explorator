@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require_relative 'overpass'
+
 module OSMExplorator
 
   # A datastore holds all data objects, i.e. is the single point of truth.
