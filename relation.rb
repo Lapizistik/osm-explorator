@@ -2,12 +2,13 @@
 
 module OSMExplorator
 
-  # A Relation is a geographical object which is identified by its relationid.
+  # A Relation is a geographical object which is identified by its id.
   # It can be part of several regions.
   # It manages all its instances which occured over time. The latest
   # version of this relation is called the current instance.
   class Relation
-    attr_reader :relationid
+  
+    attr_reader :id
     attr_accessor :current
     
     # Creates a new relation with current as its current instance
@@ -16,7 +17,7 @@ module OSMExplorator
       raise "current must be a NodeInstance!" unless current.kind_of?(RelationInstance)
       
       @current = current
-      @relationid = current.relationid
+      @id = current.id
       @regions = []
     end
     
@@ -41,17 +42,17 @@ module OSMExplorator
   
   
   # A RelationInstance is a concrete relation which existed at some point in time.
-  # It is identified by its relationid and version and can refer to a number of
+  # It is identified by its id and version and can refer to a number of
   # nodes, ways or other relations.
   class RelationInstance
-    attr_reader :relationid, :version, 
+    attr_reader :id, :version, 
                 :nodes, :ways, :relations,
                 :timestamp, :changeset,
                 :user,
                 :tags
     
     # params must be a hash with
-    # a numeric :relationid and :version,
+    # a numeric :id and :version,
     # :nodes an array of Node objects,
     # :ways an array of Way objects,
     # :relations an array of Relation objects,
@@ -60,7 +61,7 @@ module OSMExplorator
     def initialize(params)
       raise "params must not be nil!" if params.nil?
       
-      @relationid = params[:relationid]
+      @id = params[:id]
       @version = params[:version]
       
       @nodes = params[:nodes]

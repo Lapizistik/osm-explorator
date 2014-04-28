@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require 'set'
+
 module OSMExplorator
 
   # A Region is a part of the world
@@ -8,14 +10,43 @@ module OSMExplorator
   #
   # Regions are managed by Datastore objects.
   class Region
-   
+  
+    attr_reader :id
+    
     # A region must have an id and belong to a datastore
-    def initialize(regionid, datastore)
-      raise "regionid must not be nil!" if regionid.nil?
+    def initialize(id, datastore, data)
+      raise "id must not be nil!" if id.nil?
       raise "datastore must not be nil!" if datastore.nil?
+      raise "datastore must be a Datastore!" unless datastore.kind_of?(Datastore)
       
-      @regionid = regionid
+      @id = id
       @datastore = datastore
+      
+      @nodes = data[:nodes]
+      @ways = data[:ways]
+      @relations = data[:relations]
+      
+      @users = []
+    
+      @nodes.each do |n| 
+        n.add_to_region(self)
+        @users << n.current.user unless @users.include?(n.current.user)
+      end
+      
+      @ways.each do |w| 
+        w.add_to_region(self)
+        @users << w.current.user unless @users.include?(w.current.user)
+      end
+      
+      @relations.each do |r|
+        r.add_to_region(self)
+        @users << r.current.user unless @users.include?(r.current.user)
+      end
+      
+      # FIXME : @users is an array of object strings,
+      # check add_node/way/relation in class Datastore
+      # (node/way/relation is no real hash)
+      # @users.map { |u| u.add_to_region(self) }
     end
      
     def nodes

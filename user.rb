@@ -7,10 +7,10 @@ module OSMExplorator
   # of regions.
   class User
   
-    attr_reader :userid, :name
+    attr_reader :id, :name
     
-    def initialize(userid, name)
-      @userid = userid
+    def initialize(id, name)
+      @id = id
       @name = name
       
       @regions = []

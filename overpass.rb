@@ -12,10 +12,10 @@ module OSMExplorator
     class << self
     
       # Does an Overpass API request using query.
-      # params can define :format to overwrite json,
+      # params can define :format to overwrite xml,
       # and :uri to overwrite the overpass URI used.
       # Returns all :nodes, :ways and :relations as 
-      # Node, Way and Relation objects in a hash.
+      # a hash with the respective data.
       def do(query, params={})
         # Do a HTTP request
         
@@ -25,7 +25,7 @@ module OSMExplorator
         
         raise "query must not be nil!" if query.nil?
         
-        format = params[:format] || 'json'
+        format = params[:format] || 'xml'
         uri = params[:uri] || OVERPASS
 
         query = "[out:#{format}];" + query
@@ -38,28 +38,20 @@ module OSMExplorator
         
         res = {}
         
-        res[:nodes] = xml_to_type(response, "node")
-        res[:ways] = xml_to_type(response, "way")
-        res[:relations] = xml_to_type(response, "relation")
+        res[:nodes] =  parse_xml(response.body, "node")
+        res[:ways] = parse_xml(response.body, "way")
+        res[:relations] = parse_xml(response.body, "relation")
         
         return res
       end
       
       # xml is the XML data structure
       # type is the path within the structure
-      # c is the class used for construction from the xml data
-      def xml_to_type(xml, type, c)
+      def parse_xml(xml, type)
         raise "xml must not be nil!" if xml.nil?
         xml = Nokogiri::XML(xml) unless xml.respond_to?(:xpath)
         
-        es = []
-        
-        xml.xpath("osm/#{type}").each do |e|
-          cur = Module.const_get("#{type}Instance".capitalize).new(e)
-          es << Module.const_get(type.capitalize).new(cur)
-        end
-        
-        return es
+        return xml.xpath("osm/#{type}")
       end
       
     end

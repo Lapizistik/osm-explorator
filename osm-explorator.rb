@@ -9,4 +9,4 @@ require_relative 'node'
 require_relative 'way'
 require_relative 'relation'
 require_relative 'user'
-
+require_relative 'overpass'

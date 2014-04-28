@@ -2,12 +2,12 @@
 
 module OSMExplorator
 
-  # A node is a geographical object which is identified by its nodeid.
+  # A node is a geographical object which is identified by its id.
   # It can be part of several regions.
   # It manages all its instances which occured over time. The latest
   # version of this node is called the current instance.
   class Node
-    attr_reader :nodeid
+    attr_reader :id
     attr_accessor :current
     
     # Creates a new node with current as its current instance
@@ -16,7 +16,7 @@ module OSMExplorator
       raise "current must be a NodeInstance!" unless current.kind_of?(NodeInstance)
       
       @current = current
-      @nodeid = current.nodeid
+      @id = current.id
       @regions = []
     end
     
@@ -43,21 +43,21 @@ module OSMExplorator
   # A NodeInstance is a concrete node which existed at some point in time.
   # It is identified by its id and version.
   class NodeInstance
-    attr_reader :nodeid, :version, 
+    attr_reader :id, :version, 
                 :lat, :lon,
                 :timestamp, :changeset,
                 :user,
                 :tags
     
     # params must be a hash with
-    # a numeric :nodeid and :version,
+    # a numeric :id and :version,
     # a :lat and :lon as floats,
     # :timestamp a timestamp, :changeset an integer,
     # :user a User object and :tags a hash.
     def initialize(params)
       raise "params must not be nil!" if params.nil?
       
-      @nodeid = params[:nodeid]
+      @id = params[:id]
       @version = params[:version]
       
       @lat = params[:lat]

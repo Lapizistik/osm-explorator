@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
 
-require_relative 'overpass'
-
 module OSMExplorator
 
   # A datastore holds all data objects, i.e. is the single point of truth.
   # New nodes, ways, relations and users are added indirectly by 
   # requesting region data via an API, such as overpass.
   class Datastore
+  
+    def initialize
+      @nodes = {}
+      @ways = {}
+      @relations = {}
+      @users = {}
+      @regions = {}
+    end
   
     # Adds a new region to this datastore with identifier
     # regionid using an overpass request query to fetch the data.
@@ -16,16 +22,36 @@ module OSMExplorator
       raise "query must not be nil!" if query.nil?
       raise "»#{regionid}« already exists!" if @regions[regionid]
       
-      @regions[regionid] = Region.new(regionid, self)
+      raw = OverpassRequest.do(query)
       
-      # add some request code
+      data = {:nodes => [], :ways => [], :relations => []}
       
-      # add nodes/ways/relations/users which do not yet exist
-      # to the datastore
+      raw[:nodes].map {
+        |node|
+        data[:nodes] << (nodes[node[:id]] || add_node(node))
+      }
+      raw[:ways].map {
+        |way|
+        data[:ways] << (ways[way[:id]] || add_way(way))
+      }
+      raw[:relations].map {
+        |rel|
+        data[:relations] << (relations[rel[:id]] || add_relation(rel))
+      }
       
-      # give nodes/ways/relations/users objects from the datastore
-      # to the region
+      return add_region(regionid, data)
+    end
+    
+    # Adds a new region to this datastore with identifier
+    # regionid and a data-hash consisting of :nodes with Node objects,
+    # :ways with Way objects and :relations with Relation objects
+    def add_region(regionid, data)
+      raise "regionid must not be nil!" if regionid.nil?
+      raise "data must not be nil!" if data.nil?
+      raise "»#{regionid}« already exists!" if @regions[regionid]
       
+      @regions[regionid] = Region.new(regionid, self, data)
+
       return @regions[regionid]
     end
   
@@ -82,6 +108,41 @@ module OSMExplorator
       
     end
     
+    private
+    
+    def add_node(node)
+      # FIXME and below : this assigns a string and not an object!
+      node[:user] = users[node[:uid]] || add_user(node[:uid], node[:user])
+      
+      current = NodeInstance.new(node)
+      nodes[node[:id]] = Node.new(current)
+      
+      return nodes[node[:id]]
+    end
+    
+    def add_way(way)
+      way[:user] = users[way[:uid]] || add_user(way[:uid], way[:user])
+      
+      current = WayInstance.new(way)
+      ways[way[:id]] = Way.new(current)
+      
+      return ways[way[:id]]
+    end
+    
+    def add_relation(rel)
+      rel[:user] = users[rel[:uid]] || add_user(rel[:uid], rel[:user])
+      
+      current = RelationInstance.new(rel)
+      relations[rel[:id]] = Relation.new(current)
+      
+      return relations[rel[:id]]
+    end
+    
+    def add_user(userid, username)
+      users[userid] = User.new(userid, username)
+      
+      return users[userid]
+    end
   end
 
 end

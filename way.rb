@@ -2,12 +2,12 @@
 
 module OSMExplorator
 
-  # A Way is a geographical object which is identified by its wayid.
+  # A Way is a geographical object which is identified by its id.
   # It can be part of several regions.
   # It manages all its instances which occured over time. The latest
   # version of this way is called the current instance.
   class Way
-    attr_reader :wayid
+    attr_reader :id
     attr_accessor :current
     
     # Creates a new way with current as its current instance
@@ -16,7 +16,7 @@ module OSMExplorator
       raise "current must be a NodeInstance!" unless current.kind_of?(WayInstance)
       
       @current = current
-      @wayid = current.wayid
+      @id = current.id
       @regions = []
     end
     
@@ -41,23 +41,23 @@ module OSMExplorator
   
   
   # A WayInstance is a concrete way which existed at some point in time.
-  # It is identified by its wayid and version and refers to a number of nodes.
+  # It is identified by its id and version and refers to a number of nodes.
   class WayInstance
-    attr_reader :wayid, :version, 
+    attr_reader :id, :version, 
                 :nodes,
                 :timestamp, :changeset,
                 :user,
                 :tags
     
     # params must be a hash with
-    # a numeric :wayid and :version,
+    # a numeric :id and :version,
     # :nodes an array of Node objects,
     # :timestamp a timestamp, :changeset an integer,
     # :user a User object and :tags a hash.
     def initialize(params)
       raise "params must not be nil!" if params.nil?
       
-      @wayid = params[:wayid]
+      @id = params[:id]
       @version = params[:version]
       
       @nodes = params[:nodes]
