@@ -17,7 +17,9 @@ module OSMExplorator
       
       @current = current
       @id = current.id
+      
       @regions = []
+      @history = [current]
     end
     
     # Marks this node as part of the region
