@@ -24,22 +24,22 @@ module OSMExplorator
       
       raw = OverpassRequest.do(query)
       
-      data = {:nodes => [], :ways => [], :relations => []}
+      regiondata = {:nodes => [], :ways => [], :relations => []}
       
-      raw[:nodes].map {
+      raw[:nodes].each {
         |node|
-        data[:nodes] << (nodes[node[:id]] || add_node(node))
+        regiondata[:nodes] << (@nodes[node[:id]] || add_node(node))
       }
-      raw[:ways].map {
+      raw[:ways].each {
         |way|
-        data[:ways] << (ways[way[:id]] || add_way(way))
+        regiondata[:ways] << (@ways[way[:id]] || add_way(way))
       }
-      raw[:relations].map {
+      raw[:relations].each {
         |rel|
-        data[:relations] << (relations[rel[:id]] || add_relation(rel))
+        regiondata[:relations] << (@relations[rel[:id]] || add_relation(rel))
       }
       
-      return add_region(regionid, data)
+      return add_region(regionid, regiondata)
     end
     
     # Adds a new region to this datastore with identifier
@@ -111,37 +111,36 @@ module OSMExplorator
     private
     
     def add_node(node)
-      # FIXME and below : this assigns a string and not an object!
-      node[:user] = users[node[:uid]] || add_user(node[:uid], node[:user])
+      node[:user] = @users[node[:uid]] || add_user(node[:uid], node[:user])
       
       current = NodeInstance.new(node)
       nodes[node[:id]] = Node.new(current)
       
-      return nodes[node[:id]]
+      return @nodes[node[:id]]
     end
     
     def add_way(way)
-      way[:user] = users[way[:uid]] || add_user(way[:uid], way[:user])
+      way[:user] = @users[way[:uid]] || add_user(way[:uid], way[:user])
       
       current = WayInstance.new(way)
-      ways[way[:id]] = Way.new(current)
+      @ways[way[:id]] = Way.new(current)
       
-      return ways[way[:id]]
+      return @ways[way[:id]]
     end
     
     def add_relation(rel)
-      rel[:user] = users[rel[:uid]] || add_user(rel[:uid], rel[:user])
+      rel[:user] = @users[rel[:uid]] || add_user(rel[:uid], rel[:user])
       
       current = RelationInstance.new(rel)
-      relations[rel[:id]] = Relation.new(current)
+      @relations[rel[:id]] = Relation.new(current)
       
-      return relations[rel[:id]]
+      return @relations[rel[:id]]
     end
     
     def add_user(userid, username)
-      users[userid] = User.new(userid, username)
+      @users[userid] = User.new(userid, username)
       
-      return users[userid]
+      return @users[userid]
     end
   end
 

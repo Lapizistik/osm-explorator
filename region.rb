@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-require 'set'
-
 module OSMExplorator
 
   # A Region is a part of the world
@@ -43,10 +41,7 @@ module OSMExplorator
         @users << r.current.user unless @users.include?(r.current.user)
       end
       
-      # FIXME : @users is an array of object strings,
-      # check add_node/way/relation in class Datastore
-      # (node/way/relation is no real hash)
-      # @users.map { |u| u.add_to_region(self) }
+      @users.map { |u| u.add_to_region(self) }
     end
      
     def nodes

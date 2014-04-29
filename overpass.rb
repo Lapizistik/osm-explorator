@@ -2,6 +2,7 @@
 
 require 'net/http'
 require 'nokogiri'
+require 'json'
 
 module OSMExplorator
 
@@ -25,7 +26,7 @@ module OSMExplorator
         
         raise "query must not be nil!" if query.nil?
         
-        format = params[:format] || 'xml'
+        format = params[:format] || 'json'
         uri = params[:uri] || OVERPASS
 
         query = "[out:#{format}];" + query
@@ -37,10 +38,16 @@ module OSMExplorator
         response = Net::HTTP.post_form(uri, data: query)
         
         res = {}
+
+#       res[:nodes] =  parse_xml(response.body, "node")
+#       res[:ways] = parse_xml(response.body, "way")
+#       res[:relations] = parse_xml(response.body, "relation")
+
+        json = JSON.parse(response.body)
         
-        res[:nodes] =  parse_xml(response.body, "node")
-        res[:ways] = parse_xml(response.body, "way")
-        res[:relations] = parse_xml(response.body, "relation")
+        res[:nodes] = parse_json(json, "node")
+        res[:ways] = parse_json(json, "way")
+        res[:relations] = parse_json(json, "relation")
         
         return res
       end
@@ -54,6 +61,19 @@ module OSMExplorator
         return xml.xpath("osm/#{type}")
       end
       
+      def parse_json(json, type)
+        raise "json must not be nil!" if json.nil?
+        
+        return json["elements"].inject([]) { 
+          |res, e| res << symbolize_keys(e) if e["type"] == type ; res
+        }
+      end
+      
+      private
+      
+      def symbolize_keys(h)
+        Hash[h.map{ |k, v| [k.to_sym, v] }]
+      end
     end
   
   end
