@@ -14,6 +14,9 @@ module OSMExplorator
       @name = name
       
       @regions = []
+      @nodeInstances = []
+      @wayInstances = []
+      @relationInstances = []
     end
   
     def nodeInstances
@@ -51,6 +54,15 @@ module OSMExplorator
     # of nodes, ways and relations
     def activity
       return @nodes.length + @ways.length + @relations.length
+    end
+    
+    def to_s
+      return "<User: id => #{@id}, "+
+             "name => #{@name}, "+
+             "nodes => #{@nodeInstances.map { |n| n.id }}, "+
+             "ways => #{@wayInstances.map { |w| w.id }}, "+
+             "relations => #{@relationInstances.map { |r| r.id }}, "+
+             "regions => #{@regions.map { |r| r.id }}>"
     end
     
   end

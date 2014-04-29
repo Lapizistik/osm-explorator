@@ -93,6 +93,14 @@ module OSMExplorator
       
       File.open(filepath,'w') { |f| f << Marshal.dump(self) }
     end
+    
+    def to_s
+      return "<Datastore: regions => #{@regions.keys}, "+
+             "nodes => #{@nodes.keys}, "+
+             "ways => #{@ways.keys}, "+
+             "relations => #{@relations.keys}, "+
+             "users => #{@users.keys}>"
+    end
 
     # Class methods
     class << self

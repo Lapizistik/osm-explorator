@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require 'time'
+
 module OSMExplorator
 
   # A node is a geographical object which is identified by its id.
@@ -39,6 +41,13 @@ module OSMExplorator
       # TODO: load data depending on the timeframe
       return @history
     end
+    
+    def to_s
+      return "<Node: id => #{@id}, "+
+             "current => #{@current}, "+
+             "history => #{@history.map { |n| n.version }}, "+
+             "regions => #{@regions.map { |r| r.id }}>"
+    end
   end
   
   
@@ -59,18 +68,29 @@ module OSMExplorator
     def initialize(params)
       raise "params must not be nil!" if params.nil?
       
-      @id = params[:id]
-      @version = params[:version]
+      @id = params[:id].to_i
+      @version = params[:version].to_i
       
-      @lat = params[:lat]
-      @lon = params[:lon]
+      @lat = params[:lat].to_f
+      @lon = params[:lon].to_f
       
-      @timestamp = params[:timestamp]
-      @changeset = params[:changeset]
+      @timestamp = Time.parse(params[:timestamp])
+      @changeset = params[:changeset].to_i
       
       @user = params[:user]
       
       @tags = params[:tags]
+    end
+    
+    def to_s
+      return "<NodeInstance: id => #{@id}, "+
+             "version => #{@version}, "+
+             "lat => #{@lat}, "+
+             "lon => #{@lon}, "+
+             "timestamp => #{@timestamp}, "+
+             "changeset => #{@changeset}, "+
+             "user => #{@user}, "+
+             "tags => #{@tags}>"
     end
     
   end

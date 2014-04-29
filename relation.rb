@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require 'time'
+
 module OSMExplorator
 
   # A Relation is a geographical object which is identified by its id.
@@ -40,6 +42,14 @@ module OSMExplorator
       # TODO: load data depending on the timeframe
       return @history
     end
+    
+    def to_s
+      return "<Relation: id => #{@id}, "+
+             "current => #{@current}, "+
+             "history => #{@history.map { |n| n.version }}, "+
+             "regions => #{@regions.map { |r| r.id }}>"
+    end
+    
   end
   
   
@@ -63,19 +73,31 @@ module OSMExplorator
     def initialize(params)
       raise "params must not be nil!" if params.nil?
       
-      @id = params[:id]
-      @version = params[:version]
+      @id = params[:id].to_i
+      @version = params[:version].to_i
       
       @nodes = params[:nodes]
       @ways = params[:ways]
       @relations = params[:relations]
       
-      @timestamp = params[:timestamp]
-      @changeset = params[:changeset]
+      @timestamp = Time.parse(params[:timestamp])
+      @changeset = params[:changeset].to_i
       
       @user = params[:user]
       
       @tags = params[:tags]
+    end
+    
+    def to_s
+      return "<RelationInstance: id => #{@id}, "+
+             "version => #{@version}, "+
+             "nodes => #{@nodes.map { |n| n.id }}, "+
+             "ways => #{@ways.map { |w| w.id }}, "+
+             "relations => #{@relations.map { |r| r.id }}, "+
+             "timestamp => #{@timestamp}, "+
+             "changeset => #{@changeset}, "+
+             "user => #{@user}, "+
+             "tags => #{@tags}>"
     end
     
   end

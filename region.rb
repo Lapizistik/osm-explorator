@@ -28,17 +28,23 @@ module OSMExplorator
     
       @nodes.each do |n| 
         n.add_to_region(self)
-        @users << n.current.user unless @users.include?(n.current.user)
+        u = n.current.user
+        @users << u unless @users.include?(u)
+        u.nodes << n.current unless u.nodes.include?(n.current)
       end
       
       @ways.each do |w| 
-        w.add_to_region(self)
-        @users << w.current.user unless @users.include?(w.current.user)
+        w.add_to_region(self)      
+        u = w.current.user
+        @users << u unless @users.include?(u)
+        u.ways << w.current unless u.ways.include?(w.current)
       end
       
       @relations.each do |r|
         r.add_to_region(self)
-        @users << r.current.user unless @users.include?(r.current.user)
+        u = r.current.user
+        @users << u unless @users.include?(u)
+        u.relations << r.current unless u.relations.include?(r.current)
       end
       
       @users.each { |u| u.add_to_region(self) }
@@ -64,6 +70,15 @@ module OSMExplorator
       return @users
     end
   
+    def to_s
+      return "<Region: id => #{@id}, "+
+             "datastore => ..., "+
+             "nodes => #{@nodes.map { |n| n.id }}, "+
+             "ways => #{@ways.map { |w| w.id }}, "+
+             "relations => #{@relations.map { |r| r.id }}, "+
+             "users => #{@users.map { |u| u.id }}>"
+    end
+    
   end
   
 end
