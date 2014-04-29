@@ -41,7 +41,7 @@ module OSMExplorator
         @users << r.current.user unless @users.include?(r.current.user)
       end
       
-      @users.map { |u| u.add_to_region(self) }
+      @users.each { |u| u.add_to_region(self) }
     end
      
     def nodes

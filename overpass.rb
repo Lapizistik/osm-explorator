@@ -18,12 +18,6 @@ module OSMExplorator
       # Returns all :nodes, :ways and :relations as 
       # a hash with the respective data.
       def do(query, params={})
-        # Do a HTTP request
-        
-        # Parse result
-        
-        # Return nodes, ways and relations
-        
         raise "query must not be nil!" if query.nil?
         
         format = params[:format] || 'json'
@@ -36,43 +30,31 @@ module OSMExplorator
         warn '==== EOT ===='
         
         response = Net::HTTP.post_form(uri, data: query)
-        
-        res = {}
-
-#       res[:nodes] =  parse_xml(response.body, "node")
-#       res[:ways] = parse_xml(response.body, "way")
-#       res[:relations] = parse_xml(response.body, "relation")
 
         json = JSON.parse(response.body)
         
-        res[:nodes] = parse_json(json, "node")
-        res[:ways] = parse_json(json, "way")
-        res[:relations] = parse_json(json, "relation")
-        
-        return res
-      end
-      
-      # xml is the XML data structure
-      # type is the path within the structure
-      def parse_xml(xml, type)
-        raise "xml must not be nil!" if xml.nil?
-        xml = Nokogiri::XML(xml) unless xml.respond_to?(:xpath)
-        
-        return xml.xpath("osm/#{type}")
-      end
-      
-      def parse_json(json, type)
-        raise "json must not be nil!" if json.nil?
-        
-        return json["elements"].inject([]) { 
-          |res, e| res << symbolize_keys(e) if e["type"] == type ; res
-        }
+        return parse_json(json)
       end
       
       private
+
+      # Parses the JSON returned by the overpass request.
+      # Returns a hash of the overpass types (:nodes, :ways, :relations)
+      # as keys and an array of hashes of the elements as values
+      def parse_json(json)
+        raise "json must not be nil!" if json.nil?
+        
+        return json["elements"].inject({}) { 
+          |res, e| 
+          t = "#{e["type"]}s".to_sym
+          res[t] = [] unless res.keys.include?(t)
+          res[t] << symbolize_keys(e)
+          res
+        }
+      end
       
       def symbolize_keys(h)
-        Hash[h.map{ |k, v| [k.to_sym, v] }]
+        Hash[h.map { |k, v| [k.to_sym, v] }]
       end
     end
   
