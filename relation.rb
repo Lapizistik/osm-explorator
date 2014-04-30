@@ -10,25 +10,33 @@ module OSMExplorator
   # version of this relation is called the current instance.
   class Relation
   
-    attr_reader :id
-    attr_accessor :current
+    attr_reader :id, :current, :datastore
     
     # Creates a new relation with current as its current instance
-    def initialize(current)
-      raise "current must not be nil!" if current.nil?
-      raise "current must be a NodeInstance!" unless current.kind_of?(RelationInstance)
+    # json is a Hash containing the results of an overpass json request
+    def initialize(datastore, json)
+      raise "datastore #{datastore} must be a "+
+            "Datastore!" unless datastore.kind_of?(Datastore)
       
-      @current = current
-      @id = current.id
+      @datastore = datastore
+      
+      @current = RelationInstance.new(self,
+        json[:id].to_i, json[:version].to_i,
+        json[:nodes].map { |ni| ni.to_i },
+        json[:ways].map { |wi| wi.to_i },
+        json[:relations].map { |ri| ri.to_i },
+        Time.parse(json[:timestamp]), json[:changeset].to_i,
+        json[:uid].to_i, json[:tags])
+                                 
+      @id = @current.id
       
       @regions = []
-      @history = [current]
+      @history = [@current]
     end
     
     # Marks this relation as part of the region
     def add_to_region(region)
-      raise "region must not be nil!" if region.nil?
-      raise "region must be a Region!" unless region.kind_of?(Region)
+      raise "region #{region} must be a Region!" unless region.kind_of?(Region)
       
       @regions << region
     end
@@ -43,13 +51,18 @@ module OSMExplorator
       return @history
     end
     
-    def to_s
-      return "<Relation: id => #{@id}, "+
-             "current => #{@current}, "+
-             "history => #{@history.map { |n| n.version }}, "+
-             "regions => #{@regions.map { |r| r.id }}>"
+    def inspect
+      return "#<#{self.class}:#{object_id*2} "+
+             "id => #{@id}, "+
+             "datastore => #{datastore}, "+
+             "history => #{@history.map { |rel| rel.version }}, "+
+             "regions => #{@regions.map { |r| r.id }}, "+
+             "current => #{@current}>"
     end
     
+    def to_s
+      inspect
+    end
   end
   
   
@@ -57,49 +70,79 @@ module OSMExplorator
   # It is identified by its id and version and can refer to a number of
   # nodes, ways or other relations.
   class RelationInstance
-    attr_reader :id, :version, 
+    attr_reader :relation,
+                :id, :version, 
                 :nodes, :ways, :relations,
                 :timestamp, :changeset,
                 :user,
                 :tags
     
-    # params must be a hash with
-    # a numeric :id and :version,
-    # :nodes an array of Node objects,
-    # :ways an array of Way objects,
-    # :relations an array of Relation objects,
-    # :timestamp a timestamp, :changeset an integer,
-    # :user a User object and :tags a hash.
-    def initialize(params)
-      raise "params must not be nil!" if params.nil?
+    # way must be the parent Way.
+    # All other params must have the correct class.
+    # uid is resolved to a User object.
+    # nodes is an array of nodeids which are resolved
+    # to Node objects.
+    def initialize(relation, id, version,
+                   nodeids, wayids, relationids,
+                   timestamp, changeset, uid, tags)
+      raise "relation #{relation} must be a "+
+            "Relation!" unless relation.kind_of?(Relation)
       
-      @id = params[:id].to_i
-      @version = params[:version].to_i
+      @relation = relation
+
+      @id = id
+      @version = version
       
-      @nodes = params[:nodes]
-      @ways = params[:ways]
-      @relations = params[:relations]
+      @nodes = []
+      nodeids.each do |nid|
+        n = relation.datastore.nodes[nid]
+        @nodes << n
+        # TODO: think about making the node know 
+        # that it is part of this relation, e.g. 
+        # n.add_to_relation_instance(self)
+      end
       
-      @timestamp = Time.parse(params[:timestamp])
-      @changeset = params[:changeset].to_i
+      @ways = []
+      wayids.each do |wid|
+        w = relation.datastore.ways[wid]
+        @ways << w
+        # TODO: see above
+        # w.add_to_relation_instance(self)
+      end
       
-      @user = params[:user]
+      @relations = []
+      relationids.each do |rid|
+        r = relation.datastore.relations[rid]
+        @relations << r
+        # TODO: see above
+        # r.add_to_relation_instance(self)
+      end
       
-      @tags = params[:tags]
+      @timestamp = timestamp
+      @changeset = changeset
+      
+      @user = relation.datastore.user_by_id(uid)
+      
+      @tags = tags
     end
     
-    def to_s
-      return "<RelationInstance: id => #{@id}, "+
+    def inspect
+      return "#<#{self.class}:#{object_id*2} "+
+             "relation => #{@relation}, "+
+             "id => #{@id}, "+
              "version => #{@version}, "+
-             "nodes => #{@nodes.map { |n| n.id }}, "+
-             "ways => #{@ways.map { |w| w.id }}, "+
-             "relations => #{@relations.map { |r| r.id }}, "+
+             "nodes => <#{@nodes.length} entries>, "+
+             "ways => <#{@ways.length} entries>, "+
+             "relations => <#{@relations.length} entries>, "+
              "timestamp => #{@timestamp}, "+
              "changeset => #{@changeset}, "+
              "user => #{@user}, "+
              "tags => #{@tags}>"
     end
     
+    def to_s
+      inspect
+    end
   end
 
 end

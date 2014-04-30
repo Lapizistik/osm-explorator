@@ -13,10 +13,10 @@ module OSMExplorator
     class << self
     
       # Does an Overpass API request using query.
-      # params can define :format to overwrite xml,
+      # params can define :format to overwrite json (deprecated),
       # and :uri to overwrite the overpass URI used.
       # Returns all :nodes, :ways and :relations as 
-      # a hash with the respective data.
+      # a hash with the respective json data.
       def do(query, params={})
         raise "query must not be nil!" if query.nil?
         
@@ -44,6 +44,9 @@ module OSMExplorator
       def parse_json(json)
         raise "json must not be nil!" if json.nil?
         
+        # TODO / FIXME: confusing code and implicit assumption
+        # that elements contains hashes with a "type" key
+        # which have either "node", "way" or "relation" as their values.
         return json["elements"].inject({}) { 
           |res, e| 
           t = "#{e["type"]}s".to_sym

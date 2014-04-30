@@ -9,21 +9,21 @@ module OSMExplorator
   # It manages all its instances which occured over time. The latest
   # version of this node is called the current instance.
   class Node
-    attr_reader :id
-    attr_reader :current
+    attr_reader :id, :current, :datastore
     
     # Creates a new node with current as its current instance
-    # params is a Hash containing the results of an overpass json request
-    def initialize(params)
-
+    # json is a Hash containing the results of an overpass json request
+    def initialize(datastore, json)
+      raise "datastore #{datastore} must be a "+
+            "Datastore!" unless datastore.kind_of?(Datastore)
+      
+      @datastore = datastore
+      
       @current = NodeInstance.new(self, 
-                                  params[:id].to_i, params[:version].to_i,
-                                  params[:lat].to_f, params[:lon].to_f,
-                                  Time.parse(params[:timestamp]),
-                                  params[:changeset].to_i,
-                                  params[:uid].to_i,
-                                  params[:tags]
-                                  )
+        json[:id].to_i, json[:version].to_i,
+        json[:lat].to_f, json[:lon].to_f,
+        Time.parse(json[:timestamp]), json[:changeset].to_i,
+        json[:uid].to_i, json[:tags])
 
       @id = @current.id
       
@@ -33,8 +33,7 @@ module OSMExplorator
     
     # Marks this node as part of the region
     def add_to_region(region)
-      raise "region must not be nil!" if region.nil?
-      raise "region must be a Region!" unless region.kind_of?(Region)
+      raise "region #{region} must be a Region!" unless region.kind_of?(Region)
       
       @regions << region
     end
@@ -49,11 +48,25 @@ module OSMExplorator
       return @history
     end
     
-    def to_s
-      return "<Node: id => #{@id}, "+
-             "current => #{@current}, "+
+    def users
+      return @history.map { |ni| ni.user }
+    end
+    
+    def all_users
+      users
+    end
+    
+    def inspect
+      return "#<#{self.class}:#{object_id*2} "+
+             "id => #{@id}, "+
+             "datastore => #{@datastore} ,"+
              "history => #{@history.map { |n| n.version }}, "+
-             "regions => #{@regions.map { |r| r.id }}>"
+             "regions => #{@regions.map { |r| r.id }}, "+
+             "current => #{@current}>"
+    end
+    
+    def to_s
+      inspect
     end
   end
   
@@ -68,15 +81,13 @@ module OSMExplorator
                 :user,
                 :tags
     
-    # json must be a hash with
-    # a numeric :id and :version,
-    # a :lat and :lon as floats,
-    # :timestamp a timestamp, :changeset an integer,
-    # :user a User object and :tags a hash.
-    def initialize(node, id, version, 
-                   lat, lon,
-                   timestamp, changeset, uid,
-                   tags)
+    # node must be the parent node of this instance.
+    # All other params must have the correct class.
+    # uid is resolved to a User object.
+    def initialize(node, id, version, lat, lon,
+                   timestamp, changeset, uid, tags)
+      raise "node #{node} must be a Node!" unless node.kind_of?(Node)
+      
       @node = node
 
       @id = id
@@ -85,16 +96,18 @@ module OSMExplorator
       @lat = lat
       @lon = lon
       
-      @timestamp = Time.parse(params[:timestamp])
-      @changeset = params[:changeset].to_i
+      @timestamp = timestamp
+      @changeset = changeset
       
       @user = node.datastore.user_by_id(uid)
       
-      @tags = params[:tags]
+      @tags = tags
     end
     
-    def to_s
-      return "<NodeInstance: id => #{@id}, "+
+    def inspect
+      return "#<#{self.class}:#{object_id*2} "+
+             "node => #{@node} ,"+
+             "id => #{@id}, "+
              "version => #{@version}, "+
              "lat => #{@lat}, "+
              "lon => #{@lon}, "+
@@ -102,6 +115,10 @@ module OSMExplorator
              "changeset => #{@changeset}, "+
              "user => #{@user}, "+
              "tags => #{@tags}>"
+    end
+    
+    def to_s
+      inspect
     end
   end
 

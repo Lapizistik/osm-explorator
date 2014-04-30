@@ -1,0 +1,22 @@
+1. 
+Think about introducing a superclass for Node, Way and Relation
+such as GeoObject or OSMObject to avoid redundant code such as
+in Region.add_node, .add_way and .add_relation. OSMObject can have
+attributes shared among Node, Way and Relation classes such as
+id, version, history, user, datastore etc. and shared methods such as 
+add_to_region or new_from_json.
+
+2.
+OverpassRequest.parse_json() is implemented in a complicated way and
+based on assumptions. It probably also leaves room for improvement
+from a performance point of view.
+
+3.
+OverpassRequest.do() does not support a format other than JSON.
+Remove params[:format] completely?
+
+4.
+Backlink from Node to WayInstance, i.e. answering the question
+"Which Way(instance)s is this node part of?". 
+See way.rb WayInstance.initialize!
+Same for Relation->Node/Way/Relation.

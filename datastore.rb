@@ -24,32 +24,19 @@ module OSMExplorator
       
       raw = OverpassRequest.do(query)
 
-      region = Region.new(regionid, self)
+      @regions[regionid] = region = Region.new(regionid, self)
       
       raw[:nodes].each do |jnode|
         region.add_node(node_by_json(jnode))
       end
       raw[:ways].each do |jway|
-        regiondata[:ways] << (@ways[jway[:id]] || add_way_from_json(jway))
+        region.add_way(way_by_json(jway))
       end
       raw[:relations].each do |jrel|
-        regiondata[:relations] << (@relations[jrel[:id]] || add_relation_from_json(jrel))
+        region.add_relation(relation_by_json(jrel))
       end
       
-      return add_region(regionid, regiondata)
-    end
-    
-    # Adds a new region to this datastore with identifier
-    # regionid and a data-hash consisting of :nodes with Node objects,
-    # :ways with Way objects and :relations with Relation objects
-    def add_region(regionid, data)
-      raise "regionid must not be nil!" if regionid.nil?
-      raise "data must not be nil!" if data.nil?
-      raise "»#{regionid}« already exists!" if @regions[regionid]
-      
-      @regions[regionid] = r = Region.new(regionid, self, data)
-
-      return r
+      return region
     end
   
     def nodes
@@ -72,6 +59,9 @@ module OSMExplorator
       return @users
     end
 
+    # Beware that if no user with the given uid exists
+    # this method will create a new user for you and add it
+    # to the datastore.
     def user_by_id(uid, uname=nil)
       @users[uid] ||= User.new(self, uid, uname)
     end
@@ -95,12 +85,17 @@ module OSMExplorator
       File.open(filepath,'w') { |f| f << Marshal.dump(self) }
     end
     
+    def inspect
+      return "#<#{self.class}:#{object_id * 2} "+
+             "regions => #{@regions.keys}, "+
+             "nodes => {#{@nodes.length} entries}, "+
+             "ways => {#{@ways.length} entries}, "+
+             "relations => {#{@relations.length} entries}, "+
+             "users => {#{@users.length} entries}>"
+    end
+    
     def to_s
-      return "<Datastore: regions => #{@regions.keys}, "+
-             "nodes => #{@nodes.keys}, "+
-             "ways => #{@ways.keys}, "+
-             "relations => #{@relations.keys}, "+
-             "users => #{@users.keys}>"
+      inspect
     end
 
     # Class methods
@@ -124,32 +119,16 @@ module OSMExplorator
       @nodes[nid] ||= Node.new(jnode)
     end
     
-
-
-
-    def add_way_from_json(way)
-      way[:user] = @users[way[:uid]] || add_user(way[:uid], way[:user])
-      
-      current = WayInstance.new(way)
-      @ways[way[:id]] = Way.new(current)
-      
-      return @ways[way[:id]]
+    def way_by_json(jway)
+      wid = jway[:id].to_i
+      @ways[wid] ||= Way.new(jway)
     end
     
-    def add_relation_from_json(rel)
-      rel[:user] = @users[rel[:uid]] || add_user(rel[:uid], rel[:user])
-      
-      current = RelationInstance.new(rel)
-      @relations[rel[:id]] = Relation.new(current)
-      
-      return @relations[rel[:id]]
+    def relation_by_json(jrel)
+      rid = jrel[:id].to_i
+      @relations[rid] ||= Relation.new(jrel)
     end
-    
-    def add_user(userid, username)
-      @users[userid] = User.new(userid, username)
-      
-      return @users[userid]
-    end
+
   end
 
 end

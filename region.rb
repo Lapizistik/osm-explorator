@@ -11,12 +11,13 @@ module OSMExplorator
   # Regions are managed by Datastore objects.
   class Region
   
-    attr_reader :id
+    attr_reader :id, :datastore
     
     # A region must have an id and belong to a datastore
     def initialize(id, datastore, data)
       raise "id must not be nil!" if id.nil?
-      raise "datastore #{datastore.inspect} must be a Datastore!" unless datastore.kind_of?(Datastore)
+      raise "datastore #{datastore} must be a "+
+            "Datastore!" unless datastore.kind_of?(Datastore)
       
       @id = id
       @datastore = datastore
@@ -28,10 +29,37 @@ module OSMExplorator
       @users = Set.new
     end
 
-    def add_node(n)
-      @nodes << n
-      n.add_to_region(self)
-      n.all_users.each do |u| 
+    # Adds a node to this region and implicitely the author of this node
+    # if the user is not a member of the authors of this region yet
+    def add_node(node)
+      @nodes << node
+      node.add_to_region(self)
+      
+      node.all_users.each do |u| 
+        u.add_to_region(self)
+        @users << u
+      end
+    end
+    
+    # Adds a way to this region and implicitely the author of this way
+    # if the user is not a member of the authors of this region yet
+    def add_way(way)
+      @ways << way
+      way.add_to_region(self)
+      
+      way.all_users.each do |u|
+        u.add_to_region(self)
+        @users << u
+      end
+    end
+    
+    # Adds a relation to this region and implicitely the author of this relation
+    # if the user is not a member of the authors of this region yet
+    def add_relation(relation)
+      @relations << relation
+      relation.add_to_region(self)
+      
+      relation.all_users.each do |u|
         u.add_to_region(self)
         @users << u
       end
@@ -57,13 +85,18 @@ module OSMExplorator
       return @users
     end
   
+    def inspect
+      return "<#{self.class}:#{object_id*2} "+
+             "id => #{@id}, "+
+             "datastore => #{@datastore}, "+
+             "nodes => <#{@nodes.length} entries>, "+
+             "ways => <#{@ways.length} entries>, "+
+             "relations => <#{@relations.length} entries>, "+
+             "users => #{@users}>"
+    end
+    
     def to_s
-      return "<Region: id => #{@id}, "+
-             "datastore => ..., "+
-             "nodes => #{@nodes.map { |n| n.id }}, "+
-             "ways => #{@ways.map { |w| w.id }}, "+
-             "relations => #{@relations.map { |r| r.id }}, "+
-             "users => #{@users.map { |u| u.id }}>"
+      inspect
     end
     
   end

@@ -6,11 +6,11 @@ module OSMExplorator
   # such as nodes, ways and relations. A user can be active in a number
   # of regions.
   class User
-  
-    attr_reader :id, :name
+
+    attr_reader :id, :name, :datastore
     
-    def initialize(ds, id, name=nil)
-      @datastore = ds
+    def initialize(datastore, id, name=nil)
+      @datastore = datastore
       @id = id
       @name = name
       
@@ -32,12 +32,6 @@ module OSMExplorator
       return @relationInstances
     end
     
-    # Even though they are in fact instances of nodes, ways and relations
-    # it is convenient to just call them the nodes, ways and relations.
-    #alias_method :nodes, :nodeInstances
-    #alias_method :ways, :wayInstances
-    #alias_method :relations, :relationInstances
-
     def nodes
       # Change to enumerator!
       @nodeInstances.collect { |ni| ni.node }
@@ -50,8 +44,7 @@ module OSMExplorator
     
     # Marks this user active in this region
     def add_to_region(region)
-      raise "region must not be nil!" if region.nil?
-      raise "region must be a Region!" unless region.kind_of?(Region)
+      raise "region #{region} must be a Region!" unless region.kind_of?(Region)
       
       @regions << region
     end
@@ -67,15 +60,20 @@ module OSMExplorator
       return @nodes.length + @ways.length + @relations.length
     end
     
-    def to_s
-      return "<User: id => #{@id}, "+
+    def inspect
+      return "#<#{self.class}:#{object_id*2} "+
+            "datastore => #{datastore}, "+
+             "id => #{@id}, "+
              "name => #{@name}, "+
-             "nodes => #{@nodeInstances.map { |n| n.id }}, "+
-             "ways => #{@wayInstances.map { |w| w.id }}, "+
-             "relations => #{@relationInstances.map { |r| r.id }}, "+
+             "nodes => <#{@nodeInstances.length} entries>, "+
+             "ways => <#{@wayInstances.length} entries>, "+
+             "relations => <#{@relationInstances.length} entries>, "+
              "regions => #{@regions.map { |r| r.id }}>"
     end
     
+    def to_s
+      inspect
+    end
   end
 
 end
