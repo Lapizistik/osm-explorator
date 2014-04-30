@@ -17,27 +17,24 @@ module OSMExplorator
   
     # Adds a new region to this datastore with identifier
     # regionid using an overpass request query to fetch the data.
-    def add_region_by_overpass(regionid, query)
+    def add_region_by_overpass_query(regionid, query)
       raise "regionid must not be nil!" if regionid.nil?
       raise "query must not be nil!" if query.nil?
       raise "»#{regionid}« already exists!" if @regions[regionid]
       
       raw = OverpassRequest.do(query)
+
+      region = Region.new(regionid, self)
       
-      regiondata = {:nodes => [], :ways => [], :relations => []}
-      
-      raw[:nodes].each {
-        |node|
-        regiondata[:nodes] << (@nodes[node[:id]] || add_node(node))
-      }
-      raw[:ways].each {
-        |way|
-        regiondata[:ways] << (@ways[way[:id]] || add_way(way))
-      }
-      raw[:relations].each {
-        |rel|
-        regiondata[:relations] << (@relations[rel[:id]] || add_relation(rel))
-      }
+      raw[:nodes].each do |jnode|
+        region.add_node(node_by_json(jnode))
+      end
+      raw[:ways].each do |jway|
+        regiondata[:ways] << (@ways[jway[:id]] || add_way_from_json(jway))
+      end
+      raw[:relations].each do |jrel|
+        regiondata[:relations] << (@relations[jrel[:id]] || add_relation_from_json(jrel))
+      end
       
       return add_region(regionid, regiondata)
     end
@@ -50,9 +47,9 @@ module OSMExplorator
       raise "data must not be nil!" if data.nil?
       raise "»#{regionid}« already exists!" if @regions[regionid]
       
-      @regions[regionid] = Region.new(regionid, self, data)
+      @regions[regionid] = r = Region.new(regionid, self, data)
 
-      return @regions[regionid]
+      return r
     end
   
     def nodes
@@ -73,6 +70,10 @@ module OSMExplorator
     def users
       # TODO: replace by enumerator
       return @users
+    end
+
+    def user_by_id(uid, uname=nil)
+      @users[uid] ||= User.new(self, uid, uname)
     end
     
     def regions
@@ -118,16 +119,15 @@ module OSMExplorator
     
     private
     
-    def add_node(node)
-      node[:user] = @users[node[:uid]] || add_user(node[:uid], node[:user])
-      
-      current = NodeInstance.new(node)
-      nodes[node[:id]] = Node.new(current)
-      
-      return @nodes[node[:id]]
+    def node_by_json(jnode)
+      nid = jnode[:id].to_i
+      @nodes[nid] ||= Node.new(jnode)
     end
     
-    def add_way(way)
+
+
+
+    def add_way_from_json(way)
       way[:user] = @users[way[:uid]] || add_user(way[:uid], way[:user])
       
       current = WayInstance.new(way)
@@ -136,7 +136,7 @@ module OSMExplorator
       return @ways[way[:id]]
     end
     
-    def add_relation(rel)
+    def add_relation_from_json(rel)
       rel[:user] = @users[rel[:uid]] || add_user(rel[:uid], rel[:user])
       
       current = RelationInstance.new(rel)

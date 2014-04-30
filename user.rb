@@ -9,7 +9,8 @@ module OSMExplorator
   
     attr_reader :id, :name
     
-    def initialize(id, name)
+    def initialize(ds, id, name=nil)
+      @datastore = ds
       @id = id
       @name = name
       
@@ -33,9 +34,19 @@ module OSMExplorator
     
     # Even though they are in fact instances of nodes, ways and relations
     # it is convenient to just call them the nodes, ways and relations.
-    alias_method :nodes, :nodeInstances
-    alias_method :ways, :wayInstances
-    alias_method :relations, :relationInstances
+    #alias_method :nodes, :nodeInstances
+    #alias_method :ways, :wayInstances
+    #alias_method :relations, :relationInstances
+
+    def nodes
+      # Change to enumerator!
+      @nodeInstances.collect { |ni| ni.node }
+    end
+
+    def uniq_nodes
+      # Change to enumerator!
+      @nodeInstances.collect { |ni| ni.node }.uniq
+    end
     
     # Marks this user active in this region
     def add_to_region(region)

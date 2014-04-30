@@ -10,18 +10,25 @@ module OSMExplorator
   # version of this node is called the current instance.
   class Node
     attr_reader :id
-    attr_accessor :current
+    attr_reader :current
     
     # Creates a new node with current as its current instance
-    def initialize(current)
-      raise "current must not be nil!" if current.nil?
-      raise "current must be a NodeInstance!" unless current.kind_of?(NodeInstance)
-      
-      @current = current
-      @id = current.id
+    # params is a Hash containing the results of an overpass json request
+    def initialize(params)
+
+      @current = NodeInstance.new(self, 
+                                  params[:id].to_i, params[:version].to_i,
+                                  params[:lat].to_f, params[:lon].to_f,
+                                  Time.parse(params[:timestamp]),
+                                  params[:changeset].to_i,
+                                  params[:uid].to_i,
+                                  params[:tags]
+                                  )
+
+      @id = @current.id
       
       @regions = []
-      @history = [current]
+      @history = [@current]
     end
     
     # Marks this node as part of the region
@@ -54,30 +61,34 @@ module OSMExplorator
   # A NodeInstance is a concrete node which existed at some point in time.
   # It is identified by its id and version.
   class NodeInstance
-    attr_reader :id, :version, 
+    attr_reader :node,
+                :id, :version, 
                 :lat, :lon,
                 :timestamp, :changeset,
                 :user,
                 :tags
     
-    # params must be a hash with
+    # json must be a hash with
     # a numeric :id and :version,
     # a :lat and :lon as floats,
     # :timestamp a timestamp, :changeset an integer,
     # :user a User object and :tags a hash.
-    def initialize(params)
-      raise "params must not be nil!" if params.nil?
+    def initialize(node, id, version, 
+                   lat, lon,
+                   timestamp, changeset, uid,
+                   tags)
+      @node = node
+
+      @id = id
+      @version = version
       
-      @id = params[:id].to_i
-      @version = params[:version].to_i
-      
-      @lat = params[:lat].to_f
-      @lon = params[:lon].to_f
+      @lat = lat
+      @lon = lon
       
       @timestamp = Time.parse(params[:timestamp])
       @changeset = params[:changeset].to_i
       
-      @user = params[:user]
+      @user = node.datastore.user_by_id(uid)
       
       @tags = params[:tags]
     end
@@ -92,7 +103,6 @@ module OSMExplorator
              "user => #{@user}, "+
              "tags => #{@tags}>"
     end
-    
   end
 
 end
