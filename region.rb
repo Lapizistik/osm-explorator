@@ -14,7 +14,7 @@ module OSMExplorator
     attr_reader :id, :datastore
     
     # A region must have an id and belong to a datastore
-    def initialize(id, datastore, data)
+    def initialize(id, datastore)
       raise "id must not be nil!" if id.nil?
       raise "datastore #{datastore} must be a "+
             "Datastore!" unless datastore.kind_of?(Datastore)

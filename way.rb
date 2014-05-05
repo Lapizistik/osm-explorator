@@ -42,6 +42,10 @@ module OSMExplorator
       return @regions
     end
     
+    def all_users
+      return @history.map { |ni| ni.user }
+    end
+    
     # Returns a (complete?) history of this way
     def history
       # TODO: load data depending on the timeframe
@@ -51,10 +55,10 @@ module OSMExplorator
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
              "id => #{@id}, "+
-             "datastore => #{datastore}, "+
+             "datastore => #{datastore.object_id*2}, "+
              "history => #{@history.map { |w| w.version }}, "+
              "regions => #{@regions.map { |r| r.id }}, "+
-             "current => #{@current}>"
+             "current => #{@current.object_id*2}>"
     end
     
     def to_s
@@ -106,13 +110,13 @@ module OSMExplorator
     
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
-             "way => #{@way}, "+
+             "way => #{@way.object_id*2}, "+
              "id => #{@id}, "+
              "version => #{@version}, "+
              "nodes => <#{@nodes.length} entries>, "+
              "timestamp => #{@timestamp}, "+
              "changeset => #{@changeset}, "+
-             "user => #{@user}, "+
+             "user => #{@user.id}, "+
              "tags => #{@tags}>"
     end
     

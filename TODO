@@ -20,3 +20,11 @@ Backlink from Node to WayInstance, i.e. answering the question
 "Which Way(instance)s is this node part of?". 
 See way.rb WayInstance.initialize!
 Same for Relation->Node/Way/Relation.
+
+5.
+Node./Way./Relation.all_users maybe introduce @users of class Set
+and manage users persistently.
+
+6.
+The use of object_id*2 in inspect is decimal at the moment
+-> convert to hex

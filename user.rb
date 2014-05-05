@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require 'set'
+
 module OSMExplorator
 
   # A user is a person who created and modified geographical objects,
@@ -14,7 +16,7 @@ module OSMExplorator
       @id = id
       @name = name
       
-      @regions = []
+      @regions = Set.new
       @nodeInstances = []
       @wayInstances = []
       @relationInstances = []

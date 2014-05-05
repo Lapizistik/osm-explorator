@@ -48,21 +48,17 @@ module OSMExplorator
       return @history
     end
     
-    def users
+    def all_users
       return @history.map { |ni| ni.user }
     end
-    
-    def all_users
-      users
-    end
-    
+       
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
              "id => #{@id}, "+
-             "datastore => #{@datastore} ,"+
+             "datastore => #{@datastore.object_id*2} ,"+
              "history => #{@history.map { |n| n.version }}, "+
              "regions => #{@regions.map { |r| r.id }}, "+
-             "current => #{@current}>"
+             "current => #{@current.object_id*2}>"
     end
     
     def to_s
@@ -106,14 +102,14 @@ module OSMExplorator
     
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
-             "node => #{@node} ,"+
+             "node => #{@node.object_id*2} ,"+
              "id => #{@id}, "+
              "version => #{@version}, "+
              "lat => #{@lat}, "+
              "lon => #{@lon}, "+
              "timestamp => #{@timestamp}, "+
              "changeset => #{@changeset}, "+
-             "user => #{@user}, "+
+             "user => #{@user.id}, "+
              "tags => #{@tags}>"
     end
     

@@ -20,6 +20,10 @@ module OSMExplorator
       
       @datastore = datastore
       
+      json[:nodes] ||= []
+      json[:ways] ||= []
+      json[:relations] ||= []
+      
       @current = RelationInstance.new(self,
         json[:id].to_i, json[:version].to_i,
         json[:nodes].map { |ni| ni.to_i },
@@ -45,6 +49,10 @@ module OSMExplorator
       return @regions
     end
     
+    def all_users
+      return @history.map { |ni| ni.user }
+    end
+    
     # Returns a (complete?) history of this relation
     def history
       # TODO: load data depending on the timeframe
@@ -54,10 +62,10 @@ module OSMExplorator
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
              "id => #{@id}, "+
-             "datastore => #{datastore}, "+
+             "datastore => #{datastore.object_id*2}, "+
              "history => #{@history.map { |rel| rel.version }}, "+
              "regions => #{@regions.map { |r| r.id }}, "+
-             "current => #{@current}>"
+             "current => #{@current.object_id*2}>"
     end
     
     def to_s
@@ -128,7 +136,7 @@ module OSMExplorator
     
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
-             "relation => #{@relation}, "+
+             "relation => #{@relation.object_id*2}, "+
              "id => #{@id}, "+
              "version => #{@version}, "+
              "nodes => <#{@nodes.length} entries>, "+

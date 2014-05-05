@@ -116,17 +116,17 @@ module OSMExplorator
     
     def node_by_json(jnode)
       nid = jnode[:id].to_i
-      @nodes[nid] ||= Node.new(jnode)
+      @nodes[nid] ||= Node.new(self, jnode)
     end
     
     def way_by_json(jway)
       wid = jway[:id].to_i
-      @ways[wid] ||= Way.new(jway)
+      @ways[wid] ||= Way.new(self, jway)
     end
     
     def relation_by_json(jrel)
       rid = jrel[:id].to_i
-      @relations[rid] ||= Relation.new(jrel)
+      @relations[rid] ||= Relation.new(self, jrel)
     end
 
   end
