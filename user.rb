@@ -109,13 +109,20 @@ module OSMExplorator
     def to_s
       inspect
     end
-  end
+    
+    private 
 
-  private 
-
-  def load_from_osm
-    raise 'implement me!'
-    @ready = true
+    def load_from_osm
+      info = UserLoader.load_info(@id)
+      
+      @name = info[:name]
+      @description = info[:description]
+      @tracecount = info[:tracecount]
+      @changesetcount = info[:changesetcount]
+      
+      @ready = true
+    end
+  
   end
 
 end
