@@ -27,17 +27,9 @@ module OSMExplorator
       super(datastore, current)
     end
     
-    def history(hl=nil)
-      load_history(hl) unless @loaded
-      
-      @loaded = true
-      
-      return @history
-    end
-    
     # Retrieves the sequence of NodeInstances (i.e. id and version)
     # in which the location (lat, lon) of the Node changed.
-    def history_by_location_change
+    def history_by_location
       # TODO: Does the history need to be sorted?
       # If yes, make sure the history is sorted upon loading?
       history.sort! { |x, y| x.version <=> y.version }

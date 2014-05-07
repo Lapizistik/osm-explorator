@@ -26,8 +26,12 @@ module OSMExplorator
     end
     
     # Returns a complete history of this node
-    def history
-      raise "Must be implemented by inheriting class."
+    def history(hl=nil)
+      load_history(hl) unless @loaded
+      
+      @loaded = true
+      
+      return @history
     end
     
     def all_users
@@ -45,6 +49,12 @@ module OSMExplorator
     
     def to_s
       inspect
+    end
+    
+    private
+    
+    def load_history(hl)
+      raise "Must be implemented by inheriting class."
     end
     
   end
