@@ -8,62 +8,25 @@ module OSMExplorator
   # It can be part of several regions.
   # It manages all its instances which occured over time. The latest
   # version of this node is called the current instance.
-  class Node
-    attr_reader :id, :current, :datastore
-    
+  class Node < OSMObject
+
     # Creates a new node with current as its current instance
     # json is a Hash containing the results of an overpass json request
     def initialize(datastore, json)
       raise "datastore #{datastore} must be a "+
             "Datastore!" unless datastore.kind_of?(Datastore)
-      
+
       @datastore = datastore
-      
+
       @current = NodeInstance.new(self, 
         json[:id].to_i, json[:version].to_i,
         json[:lat].to_f, json[:lon].to_f,
         Time.parse(json[:timestamp]), json[:changeset].to_i,
         json[:uid].to_i, json[:tags])
 
-      @id = @current.id
-      
-      @regions = []
-      @history = [@current]
+      super(datastore, current)
     end
-    
-    # Marks this node as part of the region
-    def add_to_region(region)
-      raise "region #{region} must be a Region!" unless region.kind_of?(Region)
-      
-      @regions << region
-    end
-    
-    def regions
-      return @regions
-    end
-    
-    # Returns a (complete?) history of this node
-    def history
-      # TODO: load data depending on the timeframe
-      return @history
-    end
-    
-    def all_users
-      return @history.map { |ni| ni.user }
-    end
-       
-    def inspect
-      return "#<#{self.class}:#{object_id*2} "+
-             "id => #{@id}, "+
-             "datastore => #{@datastore.object_id*2} ,"+
-             "history => #{@history.map { |n| n.version }}, "+
-             "regions => #{@regions.map { |r| r.id }}, "+
-             "current => #{@current.object_id*2}>"
-    end
-    
-    def to_s
-      inspect
-    end
+
   end
   
   
@@ -96,6 +59,7 @@ module OSMExplorator
       @changeset = changeset
       
       @user = node.datastore.user_by_id(uid)
+      @user.add_nodeInstance(self)
       
       @tags = tags
     end

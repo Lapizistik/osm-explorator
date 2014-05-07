@@ -88,7 +88,7 @@ module OSMExplorator
     def inspect
       return "<#{self.class}:#{object_id*2} "+
              "id => #{@id}, "+
-             "datastore => #{@datastore}, "+
+             "datastore => #{@datastore.object_id*2}, "+
              "nodes => <#{@nodes.length} entries>, "+
              "ways => <#{@ways.length} entries>, "+
              "relations => <#{@relations.length} entries>, "+

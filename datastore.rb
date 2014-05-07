@@ -88,10 +88,10 @@ module OSMExplorator
     def inspect
       return "#<#{self.class}:#{object_id * 2} "+
              "regions => #{@regions.keys}, "+
-             "nodes => {#{@nodes.length} entries}, "+
-             "ways => {#{@ways.length} entries}, "+
-             "relations => {#{@relations.length} entries}, "+
-             "users => {#{@users.length} entries}>"
+             "nodes => <#{@nodes.length} entries>, "+
+             "ways => <#{@ways.length} entries>, "+
+             "relations => <#{@relations.length} entries>, "+
+             "users => <#{@users.length} entries>>"
     end
     
     def to_s

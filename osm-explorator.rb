@@ -3,6 +3,7 @@
 #require 'osm/core'
 #require 'osm/analysis'
 
+require_relative 'osmobject'
 require_relative 'region'
 require_relative 'datastore'
 require_relative 'node'

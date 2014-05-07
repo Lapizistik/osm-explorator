@@ -8,7 +8,7 @@ module OSMExplorator
   # It can be part of several regions.
   # It manages all its instances which occured over time. The latest
   # version of this relation is called the current instance.
-  class Relation
+  class Relation < OSMObject
   
     attr_reader :id, :current, :datastore
     
@@ -17,7 +17,7 @@ module OSMExplorator
     def initialize(datastore, json)
       raise "datastore #{datastore} must be a "+
             "Datastore!" unless datastore.kind_of?(Datastore)
-      
+
       @datastore = datastore
       
       json[:nodes] ||= []
@@ -31,46 +31,10 @@ module OSMExplorator
         json[:relations].map { |ri| ri.to_i },
         Time.parse(json[:timestamp]), json[:changeset].to_i,
         json[:uid].to_i, json[:tags])
-                                 
-      @id = @current.id
-      
-      @regions = []
-      @history = [@current]
+
+        super(datastore, current)
     end
-    
-    # Marks this relation as part of the region
-    def add_to_region(region)
-      raise "region #{region} must be a Region!" unless region.kind_of?(Region)
-      
-      @regions << region
-    end
-    
-    def regions
-      return @regions
-    end
-    
-    def all_users
-      return @history.map { |ni| ni.user }
-    end
-    
-    # Returns a (complete?) history of this relation
-    def history
-      # TODO: load data depending on the timeframe
-      return @history
-    end
-    
-    def inspect
-      return "#<#{self.class}:#{object_id*2} "+
-             "id => #{@id}, "+
-             "datastore => #{datastore.object_id*2}, "+
-             "history => #{@history.map { |rel| rel.version }}, "+
-             "regions => #{@regions.map { |r| r.id }}, "+
-             "current => #{@current.object_id*2}>"
-    end
-    
-    def to_s
-      inspect
-    end
+
   end
   
   
@@ -130,6 +94,7 @@ module OSMExplorator
       @changeset = changeset
       
       @user = relation.datastore.user_by_id(uid)
+      @user.add_relationInstance(self)
       
       @tags = tags
     end
