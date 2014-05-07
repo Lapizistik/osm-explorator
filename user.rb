@@ -34,6 +34,27 @@ module OSMExplorator
       return @relationInstances
     end
     
+    def add_nodeInstance(nodeInstance)
+      raise "#{nodeInstance} is not a NodeInstance!" unless
+            nodeInstance.kind_of?(NodeInstance)    
+
+      @nodeInstances << nodeInstance
+    end
+    
+    def add_wayInstance(wayInstance)
+      raise "#{wayInstance} is not a WayInstance!" unless
+            wayInstance.kind_of?(WayInstance)
+            
+      @wayInstances << wayInstance
+    end
+    
+    def add_relationInstance(relationInstance)
+      raise "#{relationInstance} is not a RelationInstance!" unless
+            relationInstance.kind_of?(RelationInstance)
+            
+      @relationInstances << relationInstance
+    end
+    
     def nodes
       # Change to enumerator!
       @nodeInstances.collect { |ni| ni.node }
@@ -64,9 +85,9 @@ module OSMExplorator
     
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
-            "datastore => #{datastore}, "+
+            "datastore => #{datastore.object_id*2}, "+
              "id => #{@id}, "+
-             "name => #{@name}, "+
+             "name => #{@name ||"\"\""}, "+
              "nodes => <#{@nodeInstances.length} entries>, "+
              "ways => <#{@wayInstances.length} entries>, "+
              "relations => <#{@relationInstances.length} entries>, "+
