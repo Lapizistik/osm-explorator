@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'pg'
+require 'time'
 
 module OSMExplorator
 
@@ -10,45 +11,79 @@ module OSMExplorator
     def initialize(dbparams)
       @pgc = PG::Connection.open(dbparams)
     end
+    
+    def max_node_version(nodeid)
+      max_version_from_table(nodeid, "nodeid", "Node")
+    end
+    
+    def max_way_version(wayid)
+      max_version_from_table(nodeid, "wayid", "Way")
+    end
+    
+    def max_relation_version(relationid)
+      max_version_from_table(nodeid, "relationid", "Relation")
+    end
 
-    def load_node(nodeid)
+    def load_for_node(node)
       nodesRes = @pgc.exec(
-        "SELECT * "+
+        "SELECT nodeid, version, latitude, longitude, "+
+        "ts, changeset, uid "+
         "FROM Node "+
-        "WHERE nodeid = #{nodeid}")
-        
-      nodes = nodesRes
+        "WHERE nodeid = #{node.id}")
+      
+      nodes = []  
+      nodesRes.each do |nr|
+        nodes << NodeInstance.new(node,
+          nr['nodeid'].to_i, nr['version'].to_i,
+          nr['latitude'].to_f, nr['longitude'].to_f,
+          Time.parse(nr['ts']), nr['changeset'].to_i,
+          nr['uid'].to_i, {})  # TODO: tags
+      end
       
       return nodes
     end
     
-    def load_way(wayid)
+    def load_for_way(way)
       waysRes = @pgc.exec(
-        "SELECT * "+
+        "SELECT wayid, version, ts, changeset, uid "+
         "FROM Way "+
-        "WHERE wayid = #{wayid}")
-      
-      ways = waysRes
-      
-      ways.each do |w|
+        "WHERE wayid = #{way.id}")
+
+      waysTmp = []
+      waysRes.each do |wr|
+        waysTmp << {
+          :id => wr['wayid'].to_i,
+          :version => wr['version'].to_i,
+          :timestamp => Time.parse(wr['ts']),
+          :changeset => wr['changeset'].to_i,
+          :uid => wr['uid'].to_i,
+          :tags => {}} # TODO: tags
+      end
+
+      ways = []
+      waysTmp.each do |wt|
         wayNodesRes = @pgc.exec(
-          "SELECT * "+
-          "FROM WayNode "+
+          "SELECT nodeid "+
+          "FROM Way_Node "+
           "WHERE "+
-            "wayid = #{w.id} AND "+
-            "wayversion = #{w.version}")
+            "wayid = #{wt[:id]} AND "+
+            "wayversion = #{wt[:version]}")
         
-        w[:nodes] = wayNodesRes
+        wt[:nodeids] = wayNodesRes.values.flatten.map { |ni| ni.to_i }
+
+        ways << WayInstance.new(way,
+          wt[:id], wt[:version], wt[:nodeids],
+          wt[:timestamp], wt[:changeset], wt[:uid], wt[:tags])
       end
       
       return ways
     end
     
-    def load_relation(relationid)
+    def load_relation(relation)
       relationsRes = @pgc.exec(
         "SELECT * "+
         "FROM Relation "+
-        "WHERE relationid = #{relationid}")
+        "WHERE relationid = #{relation.id}")
                 
       relations = relationsRes
       
@@ -77,8 +112,19 @@ module OSMExplorator
             "relation_referent_version = #{r.version}")
         r[:relations] = relationRelationsRes
       end
-        
+
       return relations
+    end
+    
+    private
+    
+    def max_version_from_table(id, iddesc, table)
+      res = @pgc.exec(
+        "SELECT MAX(version) AS maxVersion"+
+        "FROM #{table} "+
+        "WHERE #{iddesc} = #{id}")
+      
+      return res[0]['maxVersion']
     end
     
   end

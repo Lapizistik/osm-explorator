@@ -9,8 +9,7 @@ module OSMExplorator
   # It manages all its instances which occured over time. The latest
   # version of this way is called the current instance.
   class Way < OSMObject
-    attr_reader :id, :current, :datastore
-    
+  
     # Creates a new way with current as its current instance
     # json is a Hash containing the results of an overpass json request
     def initialize(datastore, json)

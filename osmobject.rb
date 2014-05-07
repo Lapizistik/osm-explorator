@@ -27,8 +27,7 @@ module OSMExplorator
     
     # Returns a complete history of this node
     def history
-      # TODO: load history if not done
-      return @history
+      raise "Must be implemented by inheriting class."
     end
     
     def all_users

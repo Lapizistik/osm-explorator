@@ -26,7 +26,37 @@ module OSMExplorator
 
       super(datastore, current)
     end
+    
+    def history(hl=nil)
+      load_history(hl) unless @loaded
+      
+      @loaded = true
+      
+      return @history
+    end
+    
+    # Retrieves the sequence of NodeInstances (i.e. id and version)
+    # in which the location (lat, lon) of the Node changed.
+    def history_by_location_change
+      # TODO: Does the history need to be sorted?
+      # If yes, make sure the history is sorted upon loading?
+      history.sort! { |x, y| x.version <=> y.version }
+      
+      # Consider using ni.equal_by_location? somehow
+      # if this does not do what you want
+      history.uniq { |ni| [ni.lat, ni.lon] }
+    end
 
+    private
+    
+    def load_history(hl)
+      his = hl.load_for_node(self)
+      his.each { |h| 
+        @history << h unless  h.id == current.id && 
+                              h.version == current.version
+      }
+    end
+    
   end
   
   
@@ -42,7 +72,7 @@ module OSMExplorator
     
     # node must be the parent node of this instance.
     # All other params must have the correct class.
-    # uid is resolved to a User object.
+    # uid is resolved to a User object which this instance is added to.
     def initialize(node, id, version, lat, lon,
                    timestamp, changeset, uid, tags)
       raise "node #{node} must be a Node!" unless node.kind_of?(Node)
@@ -66,7 +96,7 @@ module OSMExplorator
     
     def inspect
       return "#<#{self.class}:#{object_id*2} "+
-             "node => #{@node.object_id*2} ,"+
+             "node => #{@node.object_id*2}, "+
              "id => #{@id}, "+
              "version => #{@version}, "+
              "lat => #{@lat}, "+
@@ -80,6 +110,13 @@ module OSMExplorator
     def to_s
       inspect
     end
+    
+    # True if the given NodeInstance has the same coordinates,
+    # false otherwise
+    def equal_by_location?(ni)
+      ni.lat == @lat && ni.lon == @lon
+    end
+    
   end
 
 end

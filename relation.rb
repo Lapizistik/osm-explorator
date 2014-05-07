@@ -10,8 +10,6 @@ module OSMExplorator
   # version of this relation is called the current instance.
   class Relation < OSMObject
   
-    attr_reader :id, :current, :datastore
-    
     # Creates a new relation with current as its current instance
     # json is a Hash containing the results of an overpass json request
     def initialize(datastore, json)
