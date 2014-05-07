@@ -9,8 +9,20 @@ module OSMExplorator
   # of regions.
   class User
 
+    def self.delayed_attr_reader(*args)
+      args.each do |arg|
+        self.class_eval %Q{
+          def #{arg}
+            load_from_osm if !@ready
+            @#{arg}
+          end
+        }            
+      end
+    end
+
     attr_reader :id, :name, :datastore
-    
+    delayed_attr_reader :description, :tracecount, :changesetcount
+
     def initialize(datastore, id, name=nil)
       @datastore = datastore
       @id = id
@@ -97,6 +109,13 @@ module OSMExplorator
     def to_s
       inspect
     end
+  end
+
+  private 
+
+  def load_from_osm
+    raise 'implement me!'
+    @ready = true
   end
 
 end
