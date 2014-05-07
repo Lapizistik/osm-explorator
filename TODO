@@ -1,4 +1,9 @@
 -
+private load_history(hl) in classes inheriting from OSMObject (e.g. Node,
+Way, Relation) have redundant code except for hl.load_for_***(self).
+Maybe this can be solved better?
+
+-
 HistoryLoader integration in the current architecture.
 
 -

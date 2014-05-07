@@ -17,11 +17,11 @@ module OSMExplorator
     end
     
     def max_way_version(wayid)
-      max_version_from_table(nodeid, "wayid", "Way")
+      max_version_from_table(wayid, "wayid", "Way")
     end
     
     def max_relation_version(relationid)
-      max_version_from_table(nodeid, "relationid", "Relation")
+      max_version_from_table(relationid, "relationid", "Relation")
     end
 
     def load_for_node(node)
@@ -79,38 +79,53 @@ module OSMExplorator
       return ways
     end
     
-    def load_relation(relation)
+    def load_for_relation(relation)
       relationsRes = @pgc.exec(
-        "SELECT * "+
+        "SELECT relationid, version, ts, changeset, uid "+
         "FROM Relation "+
         "WHERE relationid = #{relation.id}")
                 
-      relations = relationsRes
+      relationsTmp = []
+      relationsRes.each do |rr|
+        relationsTmp << {
+          :id => rr['relationid'].to_i,
+          :version => rr['version'].to_i,
+          :timestamp => Time.parse(rr['ts']),
+          :changeset => rr['changeset'].to_i,
+          :uid => rr['uid'].to_i,
+          :tags => {}} # TODO: tags
+      end
       
-      relations.each do |r|
+      relations = []
+      relationsTmp.each do |rt|
         relationNodesRes = @pgc.exec(
-          "SELECT * "+
+          "SELECT nodeid "+
           "FROM Relation_Node "+
           "WHERE "+
-            "relationid = #{r.id} AND "+
-            "relationversion = #{r.version}")
-        r[:nodes] = relationNodesRes
-                
+            "relationid = #{rt[:id]} AND "+
+            "relationversion = #{rt[:version]}")
+        rt[:nodeids] = relationNodesRes.values.flatten.map { |ni| ni.to_i }
+        
         relationWaysRes = @pgc.exec(
-          "SELECT * "+
+          "SELECT wayid "+
           "FROM Relation_Way "+
           "WHERE "+
-            "relationid = #{r.id} AND "+
-            "relationversion = #{r.version}")
-        r[:ways] = relationWaysRes
+            "relationid = #{rt[:id]} AND "+
+            "relationversion = #{rt[:version]}")
+        rt[:wayids] = relationWaysRes.values.flatten.map { |wi| wi.to_i }
         
         relationRelationsRes = @pgc.exec(
-          "SELECT * "+
+          "SELECT relation_reference_id "+
           "FROM Relation_Relation "+
           "WHERE "+
-            "relation_referent_id = #{r.id} AND "+
-            "relation_referent_version = #{r.version}")
-        r[:relations] = relationRelationsRes
+            "relation_referent_id = #{rt[:id]} AND "+
+            "relation_referent_version = #{rt[:version]}")
+        rt[:relationids] = relationRelationsRes.values.flatten.map { |ri| ri.to_i }
+        
+        relations << RelationInstance.new(relation,
+          rt[:id], rt[:version], 
+          rt[:nodeids], rt[:wayids], rt[:relationids],
+          rt[:timestamp], rt[:changeset], rt[:uid], rt[:tags])
       end
 
       return relations
@@ -120,11 +135,11 @@ module OSMExplorator
     
     def max_version_from_table(id, iddesc, table)
       res = @pgc.exec(
-        "SELECT MAX(version) AS maxVersion"+
+        "SELECT MAX(version) AS maxVersion "+
         "FROM #{table} "+
         "WHERE #{iddesc} = #{id}")
       
-      return res[0]['maxVersion']
+      return res.getvalue(0,0).to_i
     end
     
   end

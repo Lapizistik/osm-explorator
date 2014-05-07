@@ -43,6 +43,7 @@ module OSMExplorator
     
     def load_history(hl)
       his = hl.load_for_node(self)
+      # TODO: redundant code (see Node, Way, Relation)
       his.each { |h| 
         @history << h unless  h.id == current.id && 
                               h.version == current.version
