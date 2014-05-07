@@ -65,3 +65,11 @@ User.name is attr_reader atm, but is not set by default.
 Either set it to a value when creating new users (sometimes not possible)
 or make it a delayed_attr_reader attribute.
 -------------
+
+= Datastore attribute access via Enumerators =
+Datastore.nodes/ways/relations/users should be accessible via an
+Enumerator. Alas, they are Hash-objects, so Enumerator does not work
+out of the box (ruby1.9.3). Use Enumerable?
+----------------------------------------------
+
+

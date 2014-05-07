@@ -66,23 +66,19 @@ module OSMExplorator
     end
      
     def nodes
-      # TODO: replace by enumerator
-      return @nodes
+      return OSMEnumerator.new(@nodes)
     end
      
     def ways
-      # TODO: replace by enumerator
-      return @ways
+      return OSMEnumerator.new(@ways)
     end
     
     def relations
-      # TODO: replace by enumerator
-      return @relations
+      return OSMEnumerator.new(@relations)
     end
 
     def users
-      # TODO: replace by enumerator
-      return @users
+      return OSMEnumerator.new(@users)
     end
   
     def inspect
