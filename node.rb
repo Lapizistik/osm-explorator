@@ -37,6 +37,8 @@ module OSMExplorator
       # Consider using ni.equal_by_location? somehow
       # if this does not do what you want
       history.uniq { |ni| [ni.lat, ni.lon] }
+
+      # here: nodehistoryenumerator!
     end
 
     private

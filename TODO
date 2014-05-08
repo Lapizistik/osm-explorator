@@ -1,12 +1,3 @@
-= Redundant load_history code =
-private load_history(hl) in classes inheriting from OSMObject (e.g. Node,
-Way, Relation) have redundant code except for hl.load_for_***(self).
-Maybe this can be solved better?
--------------------------------
-
-= HistoryLoader Integration =
-HistoryLoader integration in the current architecture.
------------------------------
 
 = Overpass JSON Parsing =
 OverpassRequest.parse_json() is implemented in a complicated way and
@@ -36,18 +27,6 @@ The use of object_id*2 in inspect is decimal at the moment
 -> convert to hex
 -----------
 
-= Data Analysis | History Fetch =
-After an Overpass API request, compare all OSMObject versions
-with their version from the database. If the OSMObject.version is
-less than 1 version ahead, everything is fine. If it is not, then
-compute how many versions (objects) have to be fetched via the
-OSM API until the database version + 1 is reached. 
-If a certain threshold is not reached, do the OSM API  history fetch. 
-Otherwise use the old complete system state from the database as the 
-current version.
-----------------------------------
-
-
 = Enumerators =
 Give access to data by means of enumerators rather than arrays / hashes.
 ---------------
@@ -65,11 +44,3 @@ User.name is attr_reader atm, but is not set by default.
 Either set it to a value when creating new users (sometimes not possible)
 or make it a delayed_attr_reader attribute.
 -------------
-
-= Datastore attribute access via Enumerators =
-Datastore.nodes/ways/relations/users should be accessible via an
-Enumerator. Alas, they are Hash-objects, so Enumerator does not work
-out of the box (ruby1.9.3). Use Enumerable?
-----------------------------------------------
-
-

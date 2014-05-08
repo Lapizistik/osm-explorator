@@ -1,18 +1,25 @@
 # -*- coding: utf-8 -*-
 
 module OSMExplorator
+  DEFAULTCONFIG = {
+    trackdir: './usertracks'  # is this right?
+  }
 
   # A datastore holds all data objects, i.e. is the single point of truth.
   # New nodes, ways, relations and users are added indirectly by 
   # requesting region data via an API, such as overpass.
   class Datastore
+
+    attr_reader :config
   
-    def initialize
+    def initialize(params={})
       @nodes = {}
       @ways = {}
       @relations = {}
       @users = {}
       @regions = {}
+
+      @config = params[:config] || DEFAULTCONFIG
     end
   
     # Adds a new region to this datastore with identifier

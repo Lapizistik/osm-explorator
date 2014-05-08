@@ -24,6 +24,19 @@ module OSMExplorator
       max_version_from_table(relationid, "relationid", "Relation")
     end
 
+    def load(osmobj)
+      case osmobj
+      when Node
+        load_for_node(osmobj)
+      when Way
+        load_for_way(osmobj)
+      when Relation
+        load_for_relation(osmobj)
+      else
+        raise "Do not know how to load a #{osmobj.class} history!"
+      end
+    end
+
     def load_for_node(node)
       nodesRes = @pgc.exec(
         "SELECT nodeid, version, latitude, longitude, "+
