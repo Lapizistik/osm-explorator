@@ -20,16 +20,13 @@ The result of this computation should be a chronological list of
 possibly remaining the same (ignore tag edits!) while [nodeInstances]
 must change. Nodechanges are only taken into consideration if their
 location changed (no tag-changes) or they were deleted (unknown?).
+----------------
 
 - Filter for Enumerators
-
-- Create Gem structure
 
 - History load warning if incomplete history
 
 - Broken node-history check method
-
-
 
 
 = Overpass JSON Parsing =
