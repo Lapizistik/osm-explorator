@@ -2,7 +2,7 @@
 
 module OSMExplorator
   DEFAULTCONFIG = {
-    trackdir: './usertracks'  # is this right?
+    trackdir: 'tracks/:uid'  # is this right?
   }
 
   # A datastore holds all data objects, i.e. is the single point of truth.

@@ -37,3 +37,4 @@ build/
 # jgegenfurtner test files
 test.rb
 json.data
+/tracks/

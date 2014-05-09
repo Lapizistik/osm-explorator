@@ -99,17 +99,23 @@ module OSMExplorator
       return @regions
     end
     
-    # params[:dir] the directory to save the packed files to (optional)
     # params[:login] your OSM login name (required)
     # params[:password] your OSM password (required)
+    # params[:dir] the directory to save the packed files to (optional)
+    # by default this is the directory in the datastore config.
+    # Can (must?) contain a ':uid' substring which is replaced by the uid.
     def tracks(params)
       return @tracks if @tracks_loaded
       
-      # call name to make sure the name is loaded if 
+      params[:dir] ||= @datastore.config[:trackdir]
+      
+      # Call name (and not @name) to make sure the name is loaded if 
       # this has not happened yet (name is a delayed_attribute)
       @tracks = UserLoader.load_tracks(@id, name, params)
       
       @tracks_loaded = true
+
+      return @tracks
     end
     
     # Returns the user's activity by counting the number of edits

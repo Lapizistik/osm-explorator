@@ -4,6 +4,7 @@ require 'set'
 require 'net/http'
 require 'nokogiri'
 require 'open-uri'
+require 'fileutils'
 
 module OSMExplorator
 
