@@ -29,9 +29,11 @@ module OSMExplorator
         warn query
         warn '==== EOT ===='
         
-        response = Net::HTTP.post_form(uri, data: query)
+#       response = Net::HTTP.post_form(uri, data: query)
+#       json = JSON.parse(response.body)
 
-        json = JSON.parse(response.body)
+        data = File.read("json.data")
+        json = JSON.parse(data)
         
         return parse_json(json)
       end

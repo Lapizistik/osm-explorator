@@ -1,3 +1,56 @@
+= Inspect =
+The use of object_id*2 in inspect is decimal at the moment
+-> convert to hex
+-----------
+
+= Enumerators =
+Give access to data by means of enumerators rather than arrays / hashes.
+---------------
+
+= Filters =
+Build in filters.
+-----------
+
+= UserLoader.load_tracks untested =
+Test UserLoader.load_tracks.
+-----------------------------------
+
+= User.name =
+User.name is attr_reader atm, but is not set by default.
+Either set it to a value when creating new users (sometimes not possible)
+or make it a delayed_attr_reader attribute.
+-------------
+
+
+- HistoryLoader in Datastore
+  -> check/change OSMObject.history and load_history
+
+- Filter for Enumerators
+
+- Create Gem structure
+
+- Test tracks with OSM account
+
+- Give user delayed_attr :tracks with default save directory (in datastore?)
+
+- Check datastore DEFAULT_CONFIG integration
+
+- history_by_location -> sort when loading the history
+  -> NideHistoryDifferenceEnumerator
+
+- ExtendedWayHistoryEnumerator algorithm for finding the "versions" of a way
+
+- User.name added in datastore by default
+
+- HistoryLoader.load complete and test
+  -> OSMObject.load_history and sort
+
+- History load warning if incomplete history
+
+- Broken node-history check method
+
+
+
 
 = Overpass JSON Parsing =
 OverpassRequest.parse_json() is implemented in a complicated way and
@@ -21,26 +74,3 @@ Same for Relation->Node/Way/Relation.
 Node./Way./Relation.all_users maybe introduce @users of class Set
 and manage users persistently.
 -----------------
-
-= Inspect =
-The use of object_id*2 in inspect is decimal at the moment
--> convert to hex
------------
-
-= Enumerators =
-Give access to data by means of enumerators rather than arrays / hashes.
----------------
-
-= Filters =
-Build in filters.
------------
-
-= UserLoader.load_tracks untested =
-Test UserLoader.load_tracks.
------------------------------------
-
-= User.name =
-User.name is attr_reader atm, but is not set by default.
-Either set it to a value when creating new users (sometimes not possible)
-or make it a delayed_attr_reader attribute.
--------------

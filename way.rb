@@ -83,8 +83,8 @@ module OSMExplorator
     end
     
     def inspect
-      return "#<#{self.class}:#{object_id*2} "+
-             "way => #{@way.object_id*2}, "+
+      return "#<#{self.class}:0x#{(object_id*2).to_s(16)} "+
+             "way => 0x#{(@way.object_id*2).to_s(16)}, "+
              "id => #{@id}, "+
              "version => #{@version}, "+
              "nodes => <#{@nodes.length} entries>, "+
