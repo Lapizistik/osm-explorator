@@ -22,7 +22,7 @@ module OSMExplorator
         json[:id].to_i, json[:version].to_i,
         json[:nodes].map { |ni| ni.to_i },
         Time.parse(json[:timestamp]), json[:changeset].to_i,
-        json[:uid].to_i, json[:tags])
+        json[:uid].to_i, json[:user].to_s, json[:tags])
 
       super(datastore, current)
     end
@@ -45,7 +45,7 @@ module OSMExplorator
     # nodes is an array of nodeids which are resolved
     # to Node objects.
     def initialize(way, id, version, nodeids,
-                   timestamp, changeset, uid, tags)
+                   timestamp, changeset, uid, username, tags)
       raise "way #{way} must be a Way!" unless way.kind_of?(Way)
       
       @way = way
@@ -65,7 +65,7 @@ module OSMExplorator
       @timestamp = timestamp
       @changeset = changeset
       
-      @user = way.datastore.user_by_id(uid)
+      @user = way.datastore.user_by_id(uid, username)
       @user.add_wayInstance(self)
       
       @tags = tags

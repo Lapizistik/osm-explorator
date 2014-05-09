@@ -21,8 +21,6 @@ or make it a delayed_attr_reader attribute.
 -------------
 
 
-- HistoryLoader in Datastore
-  -> check/change OSMObject.history and load_history
 
 - Filter for Enumerators
 

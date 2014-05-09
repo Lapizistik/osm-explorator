@@ -28,7 +28,7 @@ module OSMExplorator
         json[:ways].map { |wi| wi.to_i },
         json[:relations].map { |ri| ri.to_i },
         Time.parse(json[:timestamp]), json[:changeset].to_i,
-        json[:uid].to_i, json[:tags])
+        json[:uid].to_i, json[:user].to_s, json[:tags])
 
         super(datastore, current)
     end
@@ -54,7 +54,7 @@ module OSMExplorator
     # to Node objects.
     def initialize(relation, id, version,
                    nodeids, wayids, relationids,
-                   timestamp, changeset, uid, tags)
+                   timestamp, changeset, uid, username, tags)
       raise "relation #{relation} must be a "+
             "Relation!" unless relation.kind_of?(Relation)
       
@@ -91,7 +91,7 @@ module OSMExplorator
       @timestamp = timestamp
       @changeset = changeset
       
-      @user = relation.datastore.user_by_id(uid)
+      @user = relation.datastore.user_by_id(uid, username)
       @user.add_relationInstance(self)
       
       @tags = tags

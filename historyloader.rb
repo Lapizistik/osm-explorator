@@ -40,7 +40,7 @@ module OSMExplorator
     def load_for_node(node)
       nodesRes = @pgc.exec(
         "SELECT nodeid, version, latitude, longitude, "+
-        "ts, changeset, uid "+
+        "ts, changeset, uid, username "+
         "FROM Node "+
         "WHERE nodeid = #{node.id}")
       
@@ -50,7 +50,7 @@ module OSMExplorator
           nr['nodeid'].to_i, nr['version'].to_i,
           nr['latitude'].to_f, nr['longitude'].to_f,
           Time.parse(nr['ts']), nr['changeset'].to_i,
-          nr['uid'].to_i, {})  # TODO: tags
+          nr['uid'].to_i, nr['username'].to_s, {})  # TODO: tags
       end
       
       return nodes
@@ -58,7 +58,7 @@ module OSMExplorator
     
     def load_for_way(way)
       waysRes = @pgc.exec(
-        "SELECT wayid, version, ts, changeset, uid "+
+        "SELECT wayid, version, ts, changeset, uid, username "+
         "FROM Way "+
         "WHERE wayid = #{way.id}")
 
@@ -69,7 +69,7 @@ module OSMExplorator
           :version => wr['version'].to_i,
           :timestamp => Time.parse(wr['ts']),
           :changeset => wr['changeset'].to_i,
-          :uid => wr['uid'].to_i,
+          :uid => wr['uid'].to_i, :username => wr['username'].to_s,
           :tags => {}} # TODO: tags
       end
 
@@ -86,7 +86,8 @@ module OSMExplorator
 
         ways << WayInstance.new(way,
           wt[:id], wt[:version], wt[:nodeids],
-          wt[:timestamp], wt[:changeset], wt[:uid], wt[:tags])
+          wt[:timestamp], wt[:changeset], 
+          wt[:uid], wt[:username], wt[:tags])
       end
       
       return ways
@@ -94,7 +95,7 @@ module OSMExplorator
     
     def load_for_relation(relation)
       relationsRes = @pgc.exec(
-        "SELECT relationid, version, ts, changeset, uid "+
+        "SELECT relationid, version, ts, changeset, uid, username "+
         "FROM Relation "+
         "WHERE relationid = #{relation.id}")
                 
@@ -105,7 +106,7 @@ module OSMExplorator
           :version => rr['version'].to_i,
           :timestamp => Time.parse(rr['ts']),
           :changeset => rr['changeset'].to_i,
-          :uid => rr['uid'].to_i,
+          :uid => rr['uid'].to_i, :username => rr['username'].to_s, 
           :tags => {}} # TODO: tags
       end
       
@@ -138,7 +139,8 @@ module OSMExplorator
         relations << RelationInstance.new(relation,
           rt[:id], rt[:version], 
           rt[:nodeids], rt[:wayids], rt[:relationids],
-          rt[:timestamp], rt[:changeset], rt[:uid], rt[:tags])
+          rt[:timestamp], rt[:changeset], 
+          rt[:uid], rt[:username], rt[:tags])
       end
 
       return relations
