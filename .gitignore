@@ -35,6 +35,6 @@ build/
 .rvmrc
 
 # jgegenfurtner test files
-test.rb
-json.data
+/test/test.rb
+/test/json.data
 /tracks/
