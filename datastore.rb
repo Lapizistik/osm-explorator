@@ -10,8 +10,11 @@ module OSMExplorator
   # requesting region data via an API, such as overpass.
   class Datastore
 
-    attr_reader :config
+    attr_reader :config, :historyloader
   
+    # params[:pg] is the postgresql params hash for DB access. (required)
+    # params[:config] can overwrite the default config (e.g. dir
+    # to save user files to). (optional)
     def initialize(params={})
       @nodes = {}
       @ways = {}
@@ -20,6 +23,7 @@ module OSMExplorator
       @regions = {}
 
       @config = params[:config] || DEFAULTCONFIG
+      @historyloader = HistoryLoader.new(params[:pg])
     end
   
     # Adds a new region to this datastore with identifier
@@ -47,22 +51,18 @@ module OSMExplorator
     end
   
     def nodes
-      # TODO: replace by enumerator
       return @nodes
     end
     
     def ways
-      # TODO: replace by enumerator
       return @ways
     end
     
     def relations
-      # TODO: replace by enumerator
       return @relations
     end
     
     def users
-      # TODO: replace by enumerator
       return @users
     end
 

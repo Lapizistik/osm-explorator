@@ -30,28 +30,9 @@ module OSMExplorator
     # Retrieves the sequence of NodeInstances (i.e. id and version)
     # in which the location (lat, lon) of the Node changed.
     def history_by_location
-      # TODO: Does the history need to be sorted?
-      # If yes, make sure the history is sorted upon loading?
-      history.sort! { |x, y| x.version <=> y.version }
-      
-      # Consider using ni.equal_by_location? somehow
-      # if this does not do what you want
-      history.uniq { |ni| [ni.lat, ni.lon] }
-
-      # here: nodehistoryenumerator!
+      return NodeLocationHistoryEnumerator.new(history)
     end
 
-    private
-    
-    def load_history(hl)
-      his = hl.load_for_node(self)
-      # TODO: redundant code (see Node, Way, Relation)
-      his.each { |h| 
-        @history << h unless  h.id == current.id && 
-                              h.version == current.version
-      }
-    end
-    
   end
   
   
@@ -107,8 +88,10 @@ module OSMExplorator
     end
     
     # True if the given NodeInstance has the same coordinates,
-    # false otherwise
+    # false if ni is nil and otherwise
     def equal_by_location?(ni)
+      return false if ni.nil?
+
       ni.lat == @lat && ni.lon == @lon
     end
     

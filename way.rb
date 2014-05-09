@@ -27,16 +27,6 @@ module OSMExplorator
       super(datastore, current)
     end
 
-    private
-    
-    def load_history(hl)
-      his = hl.load_for_way(self)
-      # TODO: redundant code (see Node, Way, Relation)
-      his.each { |h|
-        @history << h unless h.id == current.id &&
-                             h.version == current.version
-      }
-    end
   end
   
   
@@ -44,8 +34,7 @@ module OSMExplorator
   # It is identified by its id and version and refers to a number of nodes.
   class WayInstance
     attr_reader :way,
-                :id, :version, 
-                :nodes,
+                :id, :version,
                 :timestamp, :changeset,
                 :user,
                 :tags
@@ -80,6 +69,14 @@ module OSMExplorator
       @user.add_wayInstance(self)
       
       @tags = tags
+    end
+    
+    def all_nodes
+      return @nodes
+    end
+    
+    def nodes
+      return OSMEnumerator.new(@nodes)
     end
     
     def inspect

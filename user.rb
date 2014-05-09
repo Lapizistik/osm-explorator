@@ -33,17 +33,29 @@ module OSMExplorator
       @wayInstances = []
       @relationInstances = []
     end
-  
-    def nodeInstances
+    
+    def all_nodeInstances
       return @nodeInstances
     end
     
-    def wayInstances
+    def all_wayInstances
       return @wayInstances
     end
     
-    def relationInstances
+    def all_relationInstances
       return @relationInstances
+    end
+  
+    def nodeInstances
+      return OSMEnumerator.new(@nodeInstances)
+    end
+    
+    def wayInstances
+      return OSMEnumerator.new(@wayInstances)
+    end
+    
+    def relationInstances
+      return OSMEnumerator.new(@relationInstances)
     end
     
     def add_nodeInstance(nodeInstance)
@@ -68,13 +80,11 @@ module OSMExplorator
     end
     
     def nodes
-      # Change to enumerator!
-      @nodeInstances.collect { |ni| ni.node }
+      return OSMEnumerator.new(@nodeInstances.collect { |ni| ni.node })
     end
 
     def uniq_nodes
-      # Change to enumerator!
-      @nodeInstances.collect { |ni| ni.node }.uniq
+      return OSMEnumerator.new(@nodeInstances.collect { |ni| ni.node }.uniq)
     end
     
     # Marks this user active in this region
@@ -87,6 +97,19 @@ module OSMExplorator
     # Returns all regions in which this user was active
     def regions
       return @regions
+    end
+    
+    # params[:dir] the directory to save the packed files to (optional)
+    # params[:login] your OSM login name (required)
+    # params[:password] your OSM password (required)
+    def tracks(params)
+      return @tracks if @tracks_loaded
+      
+      # call name to make sure the name is loaded if 
+      # this has not happened yet (name is a delayed_attribute)
+      @tracks = UserLoader.load_tracks(@id, name, params)
+      
+      @tracks_loaded = true
     end
     
     # Returns the user's activity by counting the number of edits

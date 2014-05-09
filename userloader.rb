@@ -48,8 +48,8 @@ module OSMExplorator
       # uid = the user id
       # name = the user name
       # params[:dir] the directory to save the packed files to (optional)
-      # params[:login] your(?) login name (required)
-      # params[:password] your password (required)
+      # params[:login] your OSM login name (required)
+      # params[:password] your OSM password (required)
       def load_tracks(uid, name, params)
         trackdir = create_trackdir(uid, params[:dir] || TRACKDIR)
         

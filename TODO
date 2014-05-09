@@ -1,10 +1,9 @@
-= Inspect =
-The use of object_id*2 in inspect is decimal at the moment
--> convert to hex
------------
-
 = Enumerators =
 Give access to data by means of enumerators rather than arrays / hashes.
+
+nodehistoryenumerator
+way...
+relation...
 ---------------
 
 = Filters =

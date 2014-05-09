@@ -25,13 +25,15 @@ module OSMExplorator
       @regions << region
     end
     
-    # Returns a complete history of this node
-    def history(hl=nil)
-      load_history(hl) unless @loaded
+    # Returns a complete history of this node as an enumerator
+    def history
+      @history = @datastore.historyloader.load(self) unless @loaded
+      
+      @history.sort! { |x, y| x.version <=> y.version }
       
       @loaded = true
       
-      return @history
+      return OSMEnumerator.new(@history)
     end
     
     def all_users
@@ -50,12 +52,7 @@ module OSMExplorator
     def to_s
       inspect
     end
-    
-    private
-    
-    def load_history(hl)
-      raise "Must be implemented by inheriting class."
-    end
+
     
   end
 
