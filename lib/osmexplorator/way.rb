@@ -34,7 +34,7 @@ module OSMExplorator
       # Remove all way versions which only have tag-changes in them
       # as we are not interested in tag-changes.
       wayHistory = his[1..-1].inject([his.first]) { |res, wi|
-        res << wi unless wi.nodes == res.last.nodes
+        res << wi unless wi.nodes.map {|n| n.id}.uniq.sort == res.last.nodes.map {|n| n.id}.uniq.sort
       }
       
       # Step 2:
