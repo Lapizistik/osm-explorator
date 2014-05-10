@@ -24,11 +24,6 @@ location changed (no tag-changes) or they were deleted (unknown?).
 
 - Filter for Enumerators
 
-- History load warning if incomplete history
-
-- Broken node-history check method
-
-
 = Overpass JSON Parsing =
 OverpassRequest.parse_json() is implemented in a complicated way and
 based on assumptions. It probably also leaves room for improvement

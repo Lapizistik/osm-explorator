@@ -29,11 +29,35 @@ module OSMExplorator
     def history
       @history = @datastore.historyloader.load(self) unless @loaded
       
-      @history.sort! { |x, y| x.version <=> y.version }
-      
       @loaded = true
       
+      @history.sort! { |x, y| x.version <=> y.version }
+      
+      warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
+            "#{history_missing_n} versions are missing!" unless history_complete?
+      
       return OSMEnumerator.new(@history)
+    end
+    
+    # True if all versions are available
+    # false if some versions of this object are missing.
+    # Use history_missing to find out which ones.
+    def history_complete?
+      return history_missing_n == 0
+    end
+    
+    # Returns the number of instances of this OSMobject which
+    # are missing in the history.
+    def history_missing_n
+      return history_missing.length
+    end
+    
+    # Returns an array with all version numbers of this object
+    # which are missing in the history.
+    def history_missing
+      @history ||= history
+      
+      return (1..@current.version).to_a - @history.map { |o| o.version }
     end
     
     def all_users
