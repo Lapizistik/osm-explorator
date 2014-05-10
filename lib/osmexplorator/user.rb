@@ -34,6 +34,18 @@ module OSMExplorator
       @relationInstances = []
     end
     
+    def nodeInstances
+      return OSMEnumerator.new(@nodeInstances)
+    end
+    
+    def wayInstances
+      return OSMEnumerator.new(@wayInstances)
+    end
+    
+    def relationInstances
+      return OSMEnumerator.new(@relationInstances)
+    end
+    
     def all_nodeInstances
       return @nodeInstances
     end
@@ -45,17 +57,34 @@ module OSMExplorator
     def all_relationInstances
       return @relationInstances
     end
-  
-    def nodeInstances
-      return OSMEnumerator.new(@nodeInstances)
+
+    def nodes
+      return OSMEnumerator.new(@nodeInstances.map { |ni| ni.node })
+    end
+
+    def uniq_nodes
+      return OSMEnumerator.new(@nodeInstances.map { |ni| ni.node }.uniq)
     end
     
-    def wayInstances
-      return OSMEnumerator.new(@wayInstances)
+    def ways
+      return OSMEnumerator.new(@wayInstances.map { |wi| wi.node })
     end
     
-    def relationInstances
-      return OSMEnumerator.new(@relationInstances)
+    def uniq_ways
+      return OSMEnumerator.new(@wayInstances.map { |wi| wi.node }.uniq)
+    end
+    
+    def relations
+      return OSMEnumerator.new(@relationInstances.map { |ri| ni.node })
+    end
+    
+    def uniq_relations
+      return OSMEnumerator.new(@relationInstances.map { |ri| ni.node }.uniq)
+    end
+    
+    # Returns all regions in which this user was active
+    def regions
+      return @regions
     end
     
     def add_nodeInstance(nodeInstance)
@@ -79,24 +108,11 @@ module OSMExplorator
       @relationInstances << relationInstance
     end
     
-    def nodes
-      return OSMEnumerator.new(@nodeInstances.collect { |ni| ni.node })
-    end
-
-    def uniq_nodes
-      return OSMEnumerator.new(@nodeInstances.collect { |ni| ni.node }.uniq)
-    end
-    
     # Marks this user active in this region
     def add_to_region(region)
       raise "region #{region} must be a Region!" unless region.kind_of?(Region)
       
       @regions << region
-    end
-    
-    # Returns all regions in which this user was active
-    def regions
-      return @regions
     end
     
     # params[:login] your OSM login name (required)

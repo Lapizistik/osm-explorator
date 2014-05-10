@@ -42,7 +42,6 @@ module OSMExplorator
   class RelationInstance
     attr_reader :relation,
                 :id, :version, 
-                :nodes, :ways, :relations,
                 :timestamp, :changeset,
                 :user,
                 :tags
@@ -95,6 +94,30 @@ module OSMExplorator
       @user.add_relationInstance(self)
       
       @tags = tags
+    end
+    
+    def nodes(filter=@relation.datastore.filter)
+      return FilteredEnumerator.new(@nodes, filter)
+    end
+    
+    def ways(filter=@relation.datastore.filter)
+      return FilteredEnumerator.new(@ways, filter)
+    end
+    
+    def relations(filter=@relation.datastore.filter)
+      return FilteredEnumerator.new(@relations, filter)
+    end
+    
+    def all_nodes
+      return @nodes
+    end
+    
+    def all_ways
+      return @ways
+    end
+    
+    def all_relations
+      return @relations
     end
     
     def inspect

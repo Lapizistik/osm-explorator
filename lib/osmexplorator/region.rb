@@ -28,6 +28,22 @@ module OSMExplorator
       
       @users = Set.new
     end
+    
+    def nodes(filter=@datastore.filter)
+      return FilteredEnumerator.new(@nodes, filter)
+    end
+     
+    def ways(filter=@datastore.filter)
+      return FilteredEnumerator.new(@ways, filter)
+    end
+    
+    def relations(filter=@datastore.filter)
+      return FilteredEnumerator.new(@relations, filter)
+    end
+
+    def users(filter=@datastore.filter)
+      return FilteredEnumerator.new(@users, filter)
+    end
 
     # Adds a node to this region and implicitely the author of this node
     # if the user is not a member of the authors of this region yet
@@ -64,23 +80,7 @@ module OSMExplorator
         @users << u
       end
     end
-     
-    def nodes
-      return OSMEnumerator.new(@nodes)
-    end
-     
-    def ways
-      return OSMEnumerator.new(@ways)
-    end
-    
-    def relations
-      return OSMEnumerator.new(@relations)
-    end
-
-    def users
-      return OSMEnumerator.new(@users)
-    end
-  
+      
     def inspect
       return "<#{self.class}:0x#{(object_id*2).to_s(16)} "+
              "id => #{@id}, "+

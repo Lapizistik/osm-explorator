@@ -1,11 +1,3 @@
-= Enumerators =
-Give access to data by means of enumerators rather than arrays / hashes.
-
-nodehistoryenumerator
-way...
-relation...
----------------
-
 = Filters =
 Build in filters.
 -----------
@@ -21,8 +13,6 @@ possibly remaining the same (ignore tag edits!) while [nodeInstances]
 must change. Nodechanges are only taken into consideration if their
 location changed (no tag-changes) or they were deleted (unknown?).
 ----------------
-
-- Filter for Enumerators
 
 = Overpass JSON Parsing =
 OverpassRequest.parse_json() is implemented in a complicated way and

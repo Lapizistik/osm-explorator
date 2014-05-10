@@ -71,12 +71,12 @@ module OSMExplorator
       @tags = tags
     end
     
-    def all_nodes
-      return @nodes
+    def nodes(filter=@way.datastore.filter)
+      return FilteredEnumerator.new(@nodes, filter)
     end
     
-    def nodes
-      return OSMEnumerator.new(@nodes)
+    def all_nodes
+      return @nodes
     end
     
     def inspect
