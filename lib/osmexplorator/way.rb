@@ -27,6 +27,96 @@ module OSMExplorator
       super(datastore, current)
     end
 
+    def history_by_nodes(filter=@datastore.filter)
+      his = history(filter).to_a
+      
+      # Step 1:
+      # Remove all way versions which only have tag-changes in them
+      # as we are not interested in tag-changes.
+      wayHistory = his[1..-1].inject([his.first]) { |res, wi|
+        res << wi unless wi.nodes == res.last.nodes
+      }
+      
+      # Step 2:
+      # Find the time intervals between the versions
+      
+      # Create the interval sequence
+      timeIntervals = wayHistory[0..-2].zip(wayHistory[1..-1])
+      
+      # Convert the sequence to ranges
+      timeIntervals.map! { |i| 
+        Range.new(i[0].timestamp.to_f, i[1].timestamp.to_f, true) # exclude
+      }
+      
+      # Add the last version with an unbounded range
+      timeIntervals << Range.new(wayHistory[-1].timestamp.to_f, Float::INFINITY)
+      
+      # Step 3:
+      # Find the subhistory of every wayInstance defined by the location
+      # changes of its referencd nodes      
+      wayHistory_nodeLocHis = {}
+      
+      # For all way versions
+      wayHistory.length.times do |i|
+      
+        # Initialize the subhistory
+        wayHistory_nodeLocHis[i] = []
+        
+        # For all nodes references by this way
+        wayHistory[i].nodes(filter).each do |n|
+        
+          # Find all node location changes
+          nodeLocHis = n.history_by_location.to_a
+                    
+          # Reduce to the nodes whose location changed 
+          # in the interval of interest
+          nodeLocHis.select! { |n|
+            timeIntervals[i].cover?(n.timestamp.to_f)
+          }
+          
+          # Add the location changes of this node in the
+          # location changes of all nodes of this wayInstance version
+          wayHistory_nodeLocHis[i] += nodeLocHis
+        end
+        
+        # Sort the subhistory by timestamp
+        wayHistory_nodeLocHis[i].sort_by! { |n1, n2|
+          n1.timestamp <=> n2.timestamp
+        }
+      end
+      
+      # Step 4:
+      # Create a handy datastructure that describes all versions
+      # { real_version => {
+      #     :way => <WayInstance>,
+      #     :nodeChange => <NodeInstance>
+      # } }
+      # where the value of :nodeChange is either nil or the NodeInstance
+      # which changed its location.
+      result = {}
+      counter = 1
+      
+      wayHistory.length.times do |i|
+        result[counter] = {
+          :way => wayHistory[i],
+          :nodeChange => nil
+        }
+        
+        counter += 1
+        
+        wayHistory_nodeLocHis[i].each do |changed_node|
+          result[counter] = {
+            :way => wayHistory[i],
+            :nodeChange => changed_node
+          }
+          
+          counter += 1
+        end
+      end
+      
+      return result
+    end
+    
   end
   
   
