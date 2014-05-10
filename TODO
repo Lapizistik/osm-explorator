@@ -1,7 +1,3 @@
-= Filters =
-Build in filters.
------------
-
 = Way History =
 Think of a (probably sophisticated) algorithm to compute the versions
 of a way. This has to take into account that a way is changed when its
@@ -13,6 +9,13 @@ possibly remaining the same (ignore tag edits!) while [nodeInstances]
 must change. Nodechanges are only taken into consideration if their
 location changed (no tag-changes) or they were deleted (unknown?).
 ----------------
+
+= Filters =
+There is only a basic filter available and functionality like
+filtercomposition is not implemented yet. It is also not so clear
+what the differences between Filters and specific Enumerators is
+(except that filters can (should) be more sophisticated.)
+-----------
 
 = Overpass JSON Parsing =
 OverpassRequest.parse_json() is implemented in a complicated way and

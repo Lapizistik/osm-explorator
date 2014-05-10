@@ -2,7 +2,7 @@ Gem::Specification.new do |s|
 	s.name		=	'osmexplorator'
 	s.version	=	'0.1.0'
 	s.date		=	'2014-05-08'
-	s.summary	=	'A library for doing social network analysis on Open Street Map data'
+	s.summary	=	'Open Street Map data analysis'
 	s.description	=	'A library for doing social network analysis on Open Street Map data'
 	s.authors	=	["Juergen Gegenfurtner", "Klaus Stein"]
 	s.email		=	'jgegenfurtner@googlemail.com'
@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
                 "lib/osmexplorator/overpass.rb",
                 "lib/osmexplorator/relation.rb",
                 "lib/osmexplorator/user.rb",
+                "lib/osmexplorator/filter.rb"
               ]
 	s.homepage	=	'https://github.com/Lapizistik/osm-explorator'
 	s.license	=	'GPL'

@@ -24,9 +24,8 @@ module OSMExplorator
 
       @config = params[:config] || DEFAULTCONFIG
       @historyloader = HistoryLoader.new(params[:pg])
-      
-      # TODO
-      @filter = nil
+
+      @filter = Filter.new
     end
   
     # Adds a new region to this datastore with identifier
