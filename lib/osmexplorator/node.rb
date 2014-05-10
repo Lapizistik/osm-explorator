@@ -88,7 +88,7 @@ module OSMExplorator
     end
     
     # True if the given NodeInstance has the same coordinates,
-    # false if ni is nil and otherwise
+    # false otherwise or if ni is nil
     def equal_by_location?(ni)
       return false if ni.nil?
 

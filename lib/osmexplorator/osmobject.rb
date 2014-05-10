@@ -25,8 +25,8 @@ module OSMExplorator
       @regions << region
     end
     
-    # Returns a complete history of this node as an enumerator
-    def history
+    # Returns a filtered history of this node as an enumerator.
+    def history(filter=nil)
       @history = @datastore.historyloader.load(self) unless @loaded
       
       @loaded = true
@@ -34,9 +34,9 @@ module OSMExplorator
       @history.sort! { |x, y| x.version <=> y.version }
       
       warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
-            "#{history_missing_n} versions are missing!" unless history_complete?
+            "missing #{history_missing_n} version(s)!" unless history_complete?
       
-      return OSMEnumerator.new(@history)
+      return FilteredEnumerator.new(@history, filter)
     end
     
     # True if all versions are available
