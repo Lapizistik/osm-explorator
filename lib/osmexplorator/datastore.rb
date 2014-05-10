@@ -52,6 +52,13 @@ module OSMExplorator
       return region
     end
   
+    # Requests a node by its id. If this node does not exist in the
+    # datastore yet, it is added by the HistoryLoader. Beware, as 
+    # it is not part of any region then.
+    def node_by_id(nid)
+      return @nodes[nid] ||= node_by_history(nid)
+    end
+  
     def nodes
       return @nodes
     end
@@ -125,7 +132,7 @@ module OSMExplorator
     
     def node_by_json(jnode)
       nid = jnode[:id].to_i
-      @nodes[nid] ||= Node.new(self, jnode)
+      @nodes[nid] ||= Node.new(self, nil, jnode)
     end
     
     def way_by_json(jway)
@@ -138,6 +145,9 @@ module OSMExplorator
       @relations[rid] ||= Relation.new(self, jrel)
     end
 
+    def node_by_history(nid)
+      @nodes[nid] ||= Node.new(self, nid, nil)
+    end
   end
 
 end

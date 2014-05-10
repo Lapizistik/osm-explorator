@@ -10,21 +10,30 @@ module OSMExplorator
   # version of this node is called the current instance.
   class Node < OSMObject
 
-    # Creates a new node with current as its current instance
-    # json is a Hash containing the results of an overpass json request
-    def initialize(datastore, json)
+    # Creates a new Node with the given nodeid.
+    # This noded is loaded from the database from its id unless json
+    # is provided when nodeid must be nil.
+    # json must be in the form of a Hash containing 
+    # the results of an overpass json request.
+    def initialize(datastore, nodeid, json=nil)
       raise "datastore #{datastore} must be a "+
             "Datastore!" unless datastore.kind_of?(Datastore)
 
       @datastore = datastore
 
-      @current = NodeInstance.new(self, 
-        json[:id].to_i, json[:version].to_i,
-        json[:lat].to_f, json[:lon].to_f,
-        Time.parse(json[:timestamp]), json[:changeset].to_i,
-        json[:uid].to_i, json[:user], json[:tags])
+      @id = nodeid
 
-      super(datastore, current)
+      if nodeid.nil?
+        @current = NodeInstance.new(self, 
+          json[:id].to_i, json[:version].to_i,
+          json[:lat].to_f, json[:lon].to_f,
+          Time.parse(json[:timestamp]), json[:changeset].to_i,
+          json[:uid].to_i, json[:user], json[:tags])
+      else
+        @current = @datastore.historyloader.load_latest_node(self)
+      end
+
+      super(@datastore, @current)
     end
     
     # Retrieves the sequence of NodeInstances (i.e. id and version)

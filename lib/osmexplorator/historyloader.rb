@@ -23,6 +23,25 @@ module OSMExplorator
     def max_relation_version(relationid)
       max_version_from_table(relationid, "relationid", "Relation")
     end
+    
+    def load_latest_node(node)
+      nodeRes = @pgc.exec(
+        "SELECT nodeid, version, latitude, longitude, "+
+        "ts, changeset, uid, username "+
+        "FROM Node "+
+        "WHERE nodeid = #{node.id}"+
+        "GROUP BY nodeid, version "+
+        "HAVING version = MAX(version)")
+      
+      nr = nodeRes[0]
+      nodeInst = NodeInstance.new(node,
+          nr['nodeid'].to_i, nr['version'].to_i,
+          nr['latitude'].to_f, nr['longitude'].to_f,
+          Time.parse(nr['ts']), nr['changeset'].to_i,
+          nr['uid'].to_i, nr['username'].to_s, {})  # TODO: tags
+          
+      return nodeInst
+    end
 
     def load(osmobj)
       case osmobj

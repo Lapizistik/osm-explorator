@@ -145,7 +145,9 @@ module OSMExplorator
       
       @nodes = []
       nodeids.each do |nid|
-        n = way.datastore.nodes[nid]
+        n = way.datastore.node_by_id(nid)
+        # TODO: think about cascading the region to the node
+        # which is possible created from the database
         @nodes << n
         # TODO: think about making the node know 
         # that it is part of this WayInstance, e.g. 
