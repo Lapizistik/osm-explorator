@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 require 'net/http'
-require 'nokogiri'
 require 'json'
 
 module OSMExplorator

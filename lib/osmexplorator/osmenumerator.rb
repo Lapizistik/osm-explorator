@@ -3,14 +3,6 @@
 module OSMExplorator
 
   class OSMEnumerator < Enumerator
-  
-    def initialize(objs)
-      super do |y|
-        objs.each do |o|
-          y.yield(o) if allowed?(o)
-        end
-      end
-    end
    
     # Whether a given object is seen through this view. Should be 
     # overwritten by subclasses to achieve the desired functionality.
@@ -61,7 +53,11 @@ module OSMExplorator
     def initialize(objs, &block)
       @block = block
       
-      super(objs)
+      super() do |y|
+        objs.each do |o|
+          y.yield(o) if allowed?(o)
+        end
+      end
     end
     
     def allowed?(o)
@@ -78,7 +74,11 @@ module OSMExplorator
     def initialize(objs, filter)
       @filter = filter
       
-      super(objs)
+      super() do |y|
+        objs.each do |o|
+          y.yield(o) if allowed?(o)
+        end
+      end
     end
     
     def allowed?(o)

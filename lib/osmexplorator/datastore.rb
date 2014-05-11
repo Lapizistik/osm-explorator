@@ -82,6 +82,10 @@ module OSMExplorator
       @users[uid] ||= User.new(self, uid, uname)
     end
     
+    def user_by_name(name)
+      @users.values.find {|u| name === u.name }
+    end
+    
     def regions
       return @regions
     end

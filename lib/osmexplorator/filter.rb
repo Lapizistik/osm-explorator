@@ -10,11 +10,24 @@ module OSMExplorator
       return true
     end
     
-    def rejected?(o)
-      return false
+  end
+
+
+  class TimeFilter < Filter
+  
+    # startTime as Time, endTime as Time or nil if unbounded
+    def initialize(startTime, endTime=nil)
+      endF = endTime.nil? ? Float::INFINITY : endTime.to_f
+      
+      @interval = Range.new(startTime.to_f, endF)
+    end
+    
+    def allowed?(o)
+      return @interval.cover?(o.timestamp.to_f)
     end
     
   end
   
 end
+
 

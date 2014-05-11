@@ -1,15 +1,3 @@
-= Way History =
-Think of a (probably sophisticated) algorithm to compute the versions
-of a way. This has to take into account that a way is changed when its
-nodes are changed (this event does not trigger a new way version!).
-Nodes might also be removed from the way without further notice.
-The result of this computation should be a chronological list of 
-(wayInstance, [nodeInstances]) pairs with wayInstance (wayid, wayversion)
-possibly remaining the same (ignore tag edits!) while [nodeInstances]
-must change. Nodechanges are only taken into consideration if their
-location changed (no tag-changes) or they were deleted (unknown?).
-----------------
-
 = Filters =
 There is only a basic filter available and functionality like
 filtercomposition is not implemented yet. It is also not so clear
