@@ -51,7 +51,7 @@ module OSMExplorator
       geotypes.each do |gt|
         items = geoobjects[gt]
         if !items
-          warn "Items for »#{gt.inspect}« missing!"
+          warn "coauthorgraph: items for »#{gt.inspect}« missing!"
           items = []
         end
         
@@ -61,13 +61,11 @@ module OSMExplorator
           l = iusers.length-1 # nr of coauthors on this page...
                     
           iusers.each_with_index do |iu,i|
-            (i+1).upto(l) do |j|
-              puts "#{iu} to #{iusers[j]}"
-              
+            (i+1).upto(l) do |j|              
               if newman
-                g.link(iu,iusers[j], 1.0/l)
+                g.link(iu, iusers[j], 1.0/l)
               else
-                g.link(iu,iusers[j])
+                g.link(iu, iusers[j])
               end
             end
           end
@@ -76,6 +74,281 @@ module OSMExplorator
       
       return g
     end
+
+    def directresponsegraph(*args)
+      filter, params =  get_filter_and_params(args)
+    
+      users = params[:users] || @users.values
+
+      geotypes = params[:geotypes] || [:nodes,:ways,:relations]
+      geoobjects = params[:geoobjects] || {
+        nodes: @nodes.values,
+        ways: @ways.values,
+        relations: @relations.values
+      }
+      
+      counts = params[:count] || :add
+
+      block = params[:block]
+      
+      if block
+        g = DotGraph.new(users, :directed => true, &block)
+      else
+        g = DotGraph.new(users, :directed => true) { |n| n.name || '-' }
+      end
+      
+      case counts
+      when :add
+        # TODO: redundant code for each case
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "directresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item| 
+            item.directresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,n) }
+            }
+          end
+        end
+      when :max
+        # TODO: see above
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "directresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item| 
+            item.directresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,n,false) }
+            }
+          end
+        end  
+      when :page
+        # TODO: see above
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "directresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item| 
+            item.directresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,1) }
+            }
+          end
+        end
+      else
+        warn  "directresponsegraph: unknown counts type '#{counts}'."+
+              "No links set!"
+      end
+      
+      return g
+    end
+    
+    def groupresponsegraph(*args)
+      filter, params =  get_filter_and_params(args)
+    
+      users = params[:users] || @users.values
+
+      geotypes = params[:geotypes] || [:nodes,:ways,:relations]
+      geoobjects = params[:geoobjects] || {
+        nodes: @nodes.values,
+        ways: @ways.values,
+        relations: @relations.values
+      }
+      
+      counts = params[:count] || :add
+
+      block = params[:block]
+      
+      if block
+        g = DotGraph.new(users, :directed => true, &block)
+      else
+        g = DotGraph.new(users, :directed => true) { |n| n.name || '-' }
+      end
+      
+      geotypes.each do |gt|
+        items = geoobjects[gt]
+        if !items
+          warn "Items for »#{gt.inspect}« missing!"
+          items = []
+        end
+        
+        items.each do |item| 
+          item.groupresponses(filter, false).each { |a,b|
+            g.link(a,b)
+          }
+        end
+      end
+      
+      return g
+    end
+    
+    def interlockingresponsegraph(*args)
+      filter, params =  get_filter_and_params(args)
+    
+      users = params[:users] || @users.values
+
+      geotypes = params[:geotypes] || [:nodes,:ways,:relations]
+      geoobjects = params[:geoobjects] || {
+        nodes: @nodes.values,
+        ways: @ways.values,
+        relations: @relations.values
+      }
+      
+      block = params[:block]
+      
+      counts = params[:count] || :add
+      k = params[:k] || 2.0
+      gparams = {directed: true}
+      if h = params[:gparams] 
+        gparams.merge(h)
+      end
+      
+      if block
+        g = DotGraph.new(users, gparams, &block)
+      else
+        g = DotGraph.new(users, gparams) { |n| n.name || '-' }
+      end
+
+      case counts
+      when :add
+        # TODO: redundant code for each case
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "interlockingresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item|
+            item.interlockingresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,n) }
+            }
+          end
+        end
+      when :log
+        # TODO: see above
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "interlockingresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item| 
+            item.interlockingresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,Math.log(n+1)) }
+            }
+          end
+        end
+      when :squares, :rootsqrs
+        # TODO: see above
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "interlockingresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item| 
+            item.interlockingresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,n**k) }
+            }
+          end
+        end
+        
+        if counts == :rootsqrs
+          kk = 1.0/k
+          g.links.each_value { |l| l.weight = l.weight**kk}
+        end
+      when :max
+        # TODO: see above
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "interlockingresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item| 
+            item.interlockingresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,n,false) }
+            }
+          end
+        end
+      when :page
+        # TODO: see above
+        geotypes.each do |gt|
+          items = geoobjects[gt]
+          if !items
+            warn "interlockingresponsegraph: items for »#{gt.inspect}« missing!"
+            items = []
+          end
+          
+          items.each do |item|
+            item.interlockingresponses(filter).each_pair { |u,to|
+              to.each_pair { |v,n| g.link(u,v,1) }
+            }
+          end
+        end
+      else
+        warn "Unknown counts type '#{counts}'. No links set!"
+      end
+      
+      return g
+    end
+    
+    def timedinterlockingresponsegraph(*args)
+      filter, params =  get_filter_and_params(args)
+    
+      users = params[:users] || @users.values
+
+      geotypes = params[:geotypes] || [:nodes,:ways,:relations]
+      geoobjects = params[:geoobjects] || {
+        nodes: @nodes.values,
+        ways: @ways.values,
+        relations: @relations.values
+      }
+      
+      block = params[:block]    
+
+      gparams = {directed: true}
+      if h = params[:gparams] 
+        gparams.merge(h)
+      end
+      
+      if block
+        g = DotGraph.new(users, gparams, &block)
+      else
+        g = DotGraph.new(users, gparams) { |n| n.name || '-' }
+      end
+      
+      geotypes.each do |gt|
+        items = geoobjects[gt]
+        if !items
+          warn "timedinterlockingresponsegraph: items for »#{gt.inspect}« missing!"
+          items = []
+        end
+        
+        items.each do |item|
+          item.timedinterlockingresponses(filter).each_pair do |s,dt|
+            dt.each_pair do |r,t|
+              g.timelink(s, r.user, t)
+            end
+          end
+        end
+      end
+      
+      return g
+    end
+    
   end
 
   class Region
@@ -83,6 +356,22 @@ module OSMExplorator
 
      def coauthorgraph(*args)
        @datastore.coauthorgraph(*graphparams(args))
+     end
+     
+     def directresponsegraph(*args)
+      @datastore.directresponsegraph(*graphparams(args))
+     end
+     
+     def groupresponsegraph(*args)
+      @datastore.groupresponsegraph(*graphparams(args))
+     end
+     
+     def interlockingresponsegraph(*args)
+      @datastore.interlockingresponsegraph(*graphparams(args))
+     end
+     
+     def timedinterlockingresponsegraph(*args)
+      @datastore.timedinterlockingresponsegraph(*graphparams(args))
      end
 
      private
@@ -98,4 +387,55 @@ module OSMExplorator
        }.merge(params)
      end
   end
+  
+  class OSMObject
+  
+    def directresponses(filter=@datastore.filter)
+      usersh = Hash.new { |h,k| h[k] = Hash.new(0) }
+      history(filter).each_cons(2) do |a,b|
+        usersh[b.user][a.user] += 1
+      end
+      usersh
+    end
+    
+    def groupresponses(filter=@datastore.filter, compatible=true)
+      s = Set.new
+      users = history(filter).collect { |n| n.user }
+      while b = users.pop
+        users.each { |a| s << [b,a] }
+      end
+      
+      if compatible
+        usersh = Hash.new { |h,k| h[k] = Hash.new(0) }
+        s.each { |a,b| usersh[a][b] = 1 }
+        return usersh
+      else
+        return s
+      end
+    end
+
+    def interlockingresponses(filter=@datastore.filter)
+      uhs = Hash.new { |h,k| h[k] = Hash.new(0) }
+      timedinterlockingresponses(filter).each_pair { |u,h|
+        uh = uhs[u]
+        h.each_key { |r| uh[r.user] += 1 }
+      }
+      
+      return uhs
+    end
+
+    def timedinterlockingresponses(filter=@datastore.filter)
+      latest_users = Hash.new
+      usersh = Hash.new { |h,k| h[k] = Hash.new(0) }
+        
+      history(filter).each do |r|
+        u = r.user
+        latest_users.each_pair { |lu,lr| usersh[u][lr] = r.timestamp }
+        latest_users[u] = r
+      end
+        
+      return usersh
+    end
+  end
+  
 end
