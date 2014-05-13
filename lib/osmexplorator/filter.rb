@@ -17,7 +17,7 @@ module OSMExplorator
   
     # startTime as Time, endTime as Time or nil if unbounded
     def initialize(startTime, endTime=nil)
-      endF = endTime.nil? ? Float::INFINITY : endTime.to_f
+      endF = endTime ? Float::INFINITY : endTime.to_f
       
       @interval = Range.new(startTime.to_f, endF)
     end
