@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+require 'dotgraph'
 
 module OSMExplorator
 
@@ -37,12 +38,14 @@ module OSMExplorator
         relations: @relations.values
       }
 
-#        users = users.to_a
+      block = params[:block]
+
+#     users = users.to_a
 
       if block
         g = DotGraph.new(users, :directed => false, &block)
       else
-        g = DotGraph.new(users, :directed => false) { |n| n.name||'-' }
+        g = DotGraph.new(users, :directed => false) { |n| n.name || '-' }
       end
       
       geotypes.each do |gt|
@@ -51,13 +54,16 @@ module OSMExplorator
           warn "Items for »#{gt.inspect}« missing!"
           items = []
         end
+        
         items.each do |item|
           iusers = item.uniq_users(filter).to_a
           
           l = iusers.length-1 # nr of coauthors on this page...
-          
+                    
           iusers.each_with_index do |iu,i|
             (i+1).upto(l) do |j|
+              puts "#{iu} to #{iusers[j]}"
+              
               if newman
                 g.link(iu,iusers[j], 1.0/l)
               else
@@ -67,8 +73,8 @@ module OSMExplorator
           end
         end
       end
-      g
-
+      
+      return g
     end
   end
 

@@ -18,7 +18,8 @@ Gem::Specification.new do |s|
                 "lib/osmexplorator/overpass.rb",
                 "lib/osmexplorator/relation.rb",
                 "lib/osmexplorator/user.rb",
-                "lib/osmexplorator/filter.rb"
+                "lib/osmexplorator/filter.rb",
+                "lib/osmexplorator/graphs.rb"
               ]
 	s.homepage	=	'https://github.com/Lapizistik/osm-explorator'
 	s.license	=	'GPL'

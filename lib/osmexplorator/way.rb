@@ -72,8 +72,8 @@ module OSMExplorator
                     
           # Reduce to the nodes whose location changed 
           # in the interval of interest
-          nodeLocHis.select! { |n|
-            timeIntervals[i].cover?(n.timestamp.to_f)
+          nodeLocHis.select! { |nl|
+            timeIntervals[i].cover?(nl.timestamp.to_f)
           }
           
           # Add the location changes of this node in the

@@ -1,5 +1,8 @@
 #!/usr/bin/ruby -w
 
+$: << "../util"
+$: << "../"
+
 require_relative 'osmexplorator/osmobject'
 require_relative 'osmexplorator/region'
 require_relative 'osmexplorator/datastore'
@@ -13,3 +16,4 @@ require_relative 'osmexplorator/userloader'
 require_relative 'osmexplorator/osmenumerator'
 require_relative 'osmexplorator/overpass'
 require_relative 'osmexplorator/filter'
+require_relative 'osmexplorator/graphs'

@@ -61,7 +61,11 @@ module OSMExplorator
     end
     
     def all_users
-      return @history.map { |oi| oi.user }
+      return history.map { |oi| oi.user }
+    end
+    
+    def uniq_users(filter=@datastore.filter)
+      return all_users.uniq
     end
        
     def inspect

@@ -38,3 +38,5 @@ build/
 /test/test.rb
 /test/json.data
 /tracks/
+/util/
+*.pdf
