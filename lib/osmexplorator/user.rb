@@ -8,6 +8,7 @@ module OSMExplorator
   # such as nodes, ways and relations. A user can be active in a number
   # of regions.
   class User
+    include Comparable
 
     def self.delayed_attr_reader(*args)
       args.each do |arg|
@@ -155,6 +156,10 @@ module OSMExplorator
       inspect
     end
     
+    def <=>(u)
+      id <=> u.id
+    end
+
     private 
 
     def load_from_osm

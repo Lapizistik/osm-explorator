@@ -26,19 +26,32 @@ module OSMExplorator
     end
     
     # Returns a filtered history of this node as an enumerator.
-    def history(filter=nil)
-      @history = @datastore.historyloader.load(self) unless @loaded
+    def history(filter=@datastore.filter)
+      if !@loaded
+        @history = @datastore.historyloader.load(self).sort_by { |i| i.version }
+        @loaded = true
       
-      @loaded = true
-      
-      @history.sort! { |x, y| x.version <=> y.version }
-      
-      warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
-            "missing #{history_missing_n} version(s)!" unless history_complete?
+        warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
+          "missing #{history_missing_n} version(s)!" unless history_complete?
+      end
       
       return FilteredEnumerator.new(@history, filter)
     end
     
+    # returns a history for dotgraph creation
+    def graph_history(filter, recursive=false)
+      if recursive
+        recursive_history(filter)
+      else
+        history(filter)
+      end
+    end
+
+    # default implementation, to be overwritten by Way (and Relation?)
+    def recursive_history(filter)
+      history(filter)
+    end
+
     # True if all versions are available
     # false if some versions of this object are missing.
     # Use history_missing to find out which ones.
