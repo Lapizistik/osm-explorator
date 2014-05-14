@@ -26,6 +26,23 @@ module OSMExplorator
 
       super(datastore, @current)
     end
+    
+    # This has to return objects which allow <object>.user
+    def recursive_history(filter=@datastore.filter)
+      res = []
+      
+      history_by_nodes(filter).each do |k, v|
+        if v[:nodeChange].nil?
+          # the way changed
+          res << v[:way]
+        else
+          # a node changed
+          res << v[:nodeChange]
+        end
+      end
+      
+      return res
+    end
 
     def history_by_nodes(filter=@datastore.filter)
       his = history(filter).to_a

@@ -1,4 +1,10 @@
+= Redundant Code =
+graphs.rb: Datastore.*graph
+  -> Setting the parameters
+  -> geoobjects.each loops
 
+____________________________________
+____________________________________
 
 
 = Enumerators =

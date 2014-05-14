@@ -43,7 +43,7 @@ module OSMExplorator
         end
         
         @loaded = true
-      
+
 =begin
         warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
           "missing #{history_missing_n} version(s)!" unless history_complete?
@@ -54,7 +54,7 @@ module OSMExplorator
     end
     
     # returns a history for dotgraph creation
-    def graph_history(filter, recursive=false)
+    def graph_history(filter=@datastore.filter, recursive=false)
       if recursive
         recursive_history(filter)
       else
@@ -63,7 +63,7 @@ module OSMExplorator
     end
 
     # default implementation, to be overwritten by Way (and Relation?)
-    def recursive_history(filter)
+    def recursive_history(filter=@datastore.filter)
       history(filter)
     end
 
@@ -96,8 +96,14 @@ module OSMExplorator
       return history.map { |oi| oi.user }
     end
     
-    def uniq_users(filter=@datastore.filter)
-      return all_users.uniq
+    def uniq_users(filter=@datastore.filter, recursive=false)
+      if recursive
+        return recursive_history.map { |oi| oi.user }.uniq
+      else
+        # TODO: this is the same as all_users()
+        # Create all_users_recursive() for the above case?
+        return history.map{ |oi| oi.user }.uniq
+      end
     end
        
     def inspect

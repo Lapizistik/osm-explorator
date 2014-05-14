@@ -13,7 +13,7 @@ module OSMExplorator
         when Filter
           filter = a
         when Hash
-          params.merge(a)
+          params.merge!(a)
         end
       end
       filter ||= params[:filter] || @filter
@@ -25,11 +25,9 @@ module OSMExplorator
     include ParamParser
 
     def coauthorgraph(*args)
-      filter, params =  get_filter_and_params(args)
-      
-      type = params[:type] || :plain
-      newman = (type==:newman)
-
+      # ---Redundant
+      filter, params = get_filter_and_params(args)
+    
       users = params[:users] || @users.values
 
       geotypes = params[:geotypes] || [:nodes,:ways,:relations]
@@ -38,8 +36,17 @@ module OSMExplorator
         ways: @ways.values,
         relations: @relations.values
       }
-
+      
       block = params[:block]
+      
+      recursive = params[:recursive] || false
+      if recursive && geotypes != [:ways]
+        warn "Only the geotype :ways supports a recursive history!"
+      end
+      # ---
+      
+      type = params[:type] || :plain
+      newman = (type==:newman)
 
 #     users = users.to_a
 
@@ -57,7 +64,7 @@ module OSMExplorator
         end
         
         items.each do |item|
-          iusers = item.uniq_users(filter).to_a
+          iusers = item.uniq_users(filter, recursive).to_a
           
           l = iusers.length-1 # nr of coauthors on this page...
                     
@@ -77,7 +84,8 @@ module OSMExplorator
     end
 
     def directresponsegraph(*args)
-      filter, params =  get_filter_and_params(args)
+      # ---Redundant
+      filter, params = get_filter_and_params(args)
     
       users = params[:users] || @users.values
 
@@ -88,9 +96,15 @@ module OSMExplorator
         relations: @relations.values
       }
       
-      counts = params[:count] || :add
-
       block = params[:block]
+      
+      recursive = params[:recursive] || false
+      if recursive && geotypes != [:ways]
+        warn "Only the geotype :ways supports a recursive history!"
+      end
+      # ---
+      
+      counts = params[:count] || :add
       
       if block
         g = DotGraph.new(users, :directed => true, &block)
@@ -109,7 +123,7 @@ module OSMExplorator
           end
           
           items.each do |item| 
-            item.directresponses(filter).each_pair { |u,to|
+            item.directresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,n) }
             }
           end
@@ -124,7 +138,7 @@ module OSMExplorator
           end
           
           items.each do |item| 
-            item.directresponses(filter).each_pair { |u,to|
+            item.directresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,n,false) }
             }
           end
@@ -139,7 +153,7 @@ module OSMExplorator
           end
           
           items.each do |item| 
-            item.directresponses(filter).each_pair { |u,to|
+            item.directresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,1) }
             }
           end
@@ -153,7 +167,8 @@ module OSMExplorator
     end
     
     def groupresponsegraph(*args)
-      filter, params =  get_filter_and_params(args)
+      # ---Redundant
+      filter, params = get_filter_and_params(args)
     
       users = params[:users] || @users.values
 
@@ -164,9 +179,15 @@ module OSMExplorator
         relations: @relations.values
       }
       
-      counts = params[:count] || :add
-
       block = params[:block]
+      
+      recursive = params[:recursive] || false
+      if recursive && geotypes != [:ways]
+        warn "Only the geotype :ways supports a recursive history!"
+      end
+      # ---
+      
+      counts = params[:count] || :add
       
       if block
         g = DotGraph.new(users, :directed => true, &block)
@@ -182,7 +203,7 @@ module OSMExplorator
         end
         
         items.each do |item| 
-          item.groupresponses(filter, false).each { |a,b|
+          item.groupresponses(filter, recursive, false).each { |a,b|
             g.link(a,b)
           }
         end
@@ -192,6 +213,7 @@ module OSMExplorator
     end
     
     def interlockingresponsegraph(*args)
+      # ---Redundant
       filter, params =  get_filter_and_params(args)
     
       users = params[:users] || @users.values
@@ -204,6 +226,12 @@ module OSMExplorator
       }
       
       block = params[:block]
+      
+      recursive = params[:recursive] || false
+      if recursive && geotypes != [:ways]
+        warn "Only the geotype :ways supports a recursive history!"
+      end
+      # ---
       
       counts = params[:count] || :add
       k = params[:k] || 2.0
@@ -229,7 +257,7 @@ module OSMExplorator
           end
           
           items.each do |item|
-            item.interlockingresponses(filter).each_pair { |u,to|
+            item.interlockingresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,n) }
             }
           end
@@ -244,7 +272,7 @@ module OSMExplorator
           end
           
           items.each do |item| 
-            item.interlockingresponses(filter).each_pair { |u,to|
+            item.interlockingresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,Math.log(n+1)) }
             }
           end
@@ -259,7 +287,7 @@ module OSMExplorator
           end
           
           items.each do |item| 
-            item.interlockingresponses(filter).each_pair { |u,to|
+            item.interlockingresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,n**k) }
             }
           end
@@ -279,7 +307,7 @@ module OSMExplorator
           end
           
           items.each do |item| 
-            item.interlockingresponses(filter).each_pair { |u,to|
+            item.interlockingresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,n,false) }
             }
           end
@@ -294,7 +322,7 @@ module OSMExplorator
           end
           
           items.each do |item|
-            item.interlockingresponses(filter).each_pair { |u,to|
+            item.interlockingresponses(filter, recursive).each_pair { |u,to|
               to.each_pair { |v,n| g.link(u,v,1) }
             }
           end
@@ -307,6 +335,7 @@ module OSMExplorator
     end
     
     def timedinterlockingresponsegraph(*args)
+      # ---Redundant
       filter, params =  get_filter_and_params(args)
     
       users = params[:users] || @users.values
@@ -318,7 +347,13 @@ module OSMExplorator
         relations: @relations.values
       }
       
-      block = params[:block]    
+      block = params[:block]
+      
+      recursive = params[:recursive] || false
+      if recursive && geotypes != [:ways]
+        warn "Only the geotype :ways supports a recursive history!"
+      end
+      # --- 
 
       gparams = {directed: true}
       if h = params[:gparams] 
@@ -339,7 +374,7 @@ module OSMExplorator
         end
         
         items.each do |item|
-          item.timedinterlockingresponses(filter).each_pair do |s,dt|
+          item.timedinterlockingresponses(filter, recursive).each_pair do |s,dt|
             dt.each_pair do |r,t|
               g.timelink(s, r.user, t)
             end
@@ -391,17 +426,17 @@ module OSMExplorator
   
   class OSMObject
   
-    def directresponses(filter=@datastore.filter)
+    def directresponses(filter=@datastore.filter, recursive=false)
       usersh = Hash.new { |h,k| h[k] = Hash.new(0) }
-      history(filter).each_cons(2) do |a,b|
+      graph_history(filter, recursive).each_cons(2) do |a,b|
         usersh[b.user][a.user] += 1
       end
       usersh
     end
     
-    def groupresponses(filter=@datastore.filter, compatible=true)
+    def groupresponses(filter=@datastore.filter, recursive=false, compatible=true)
       s = Set.new
-      users = history(filter).collect { |n| n.user }
+      users = graph_history(filter, recursive).collect { |n| n.user }
       while b = users.pop
         users.each { |a| s << [b,a] }
       end
@@ -415,9 +450,9 @@ module OSMExplorator
       end
     end
 
-    def interlockingresponses(filter=@datastore.filter)
+    def interlockingresponses(filter=@datastore.filter, recursive=false)
       uhs = Hash.new { |h,k| h[k] = Hash.new(0) }
-      timedinterlockingresponses(filter).each_pair { |u,h|
+      timedinterlockingresponses(filter, recursive).each_pair { |u,h|
         uh = uhs[u]
         h.each_key { |r| uh[r.user] += 1 }
       }
@@ -425,11 +460,11 @@ module OSMExplorator
       return uhs
     end
 
-    def timedinterlockingresponses(filter=@datastore.filter)
+    def timedinterlockingresponses(filter=@datastore.filter, recursive=false)
       latest_users = Hash.new
       usersh = Hash.new { |h,k| h[k] = Hash.new(0) }
         
-      history(filter).each do |r|
+      graph_history(filter, recursive).each do |r|
         u = r.user
         latest_users.each_pair { |lu,lr| usersh[u][lr] = r.timestamp }
         latest_users[u] = r

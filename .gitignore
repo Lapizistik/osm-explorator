@@ -42,3 +42,4 @@ build/
 *.pdf
 /examples/pglogin.rb
 /examples/bamberg_insel.json
+/examples/fragments.rb
