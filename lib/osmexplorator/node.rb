@@ -16,6 +16,7 @@ module OSMExplorator
     # json must be in the form of a Hash containing 
     # the results of an overpass json request.
     def initialize(datastore, nodeid, json=nil)
+
       raise "datastore #{datastore} must be a "+
             "Datastore!" unless datastore.kind_of?(Datastore)
 
@@ -30,7 +31,8 @@ module OSMExplorator
           Time.parse(json[:timestamp]), json[:changeset].to_i,
           json[:uid].to_i, json[:user], json[:tags])
       else
-        @current = @datastore.historyloader.load_latest_node(self)
+        history
+        @current = @history.last
       end
 
       super(@datastore, @current)

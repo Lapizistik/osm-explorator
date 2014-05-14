@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-require 'dotgraph'
+# todo: change this path when we did the gem
+require 'util/dotgraph'
 
 module OSMExplorator
 

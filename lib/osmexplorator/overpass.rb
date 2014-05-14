@@ -28,13 +28,17 @@ module OSMExplorator
         warn query
         warn '==== EOT ===='
         
-#       response = Net::HTTP.post_form(uri, data: query)
-#       json = JSON.parse(response.body)
-
-        data = File.read("json.data")
-        json = JSON.parse(data)
+        response = Net::HTTP.post_form(uri, data: query)
         
-        return parse_json(json)
+        return from_json(response.body)
+      end
+
+      def from_jsonfile(filename="json.data")
+        from_json(File.read(filename))
+      end
+
+      def from_json(data)
+        parse_jsonstruct(JSON.parse(data))
       end
       
       private
@@ -42,7 +46,7 @@ module OSMExplorator
       # Parses the JSON returned by the overpass request.
       # Returns a hash of the overpass types (:nodes, :ways, :relations)
       # as keys and an array of hashes of the elements as values
-      def parse_json(json)
+      def parse_jsonstruct(json)
         raise "json must not be nil!" if json.nil?
         
         # TODO / FIXME: confusing code and implicit assumption
