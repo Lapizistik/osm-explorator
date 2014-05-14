@@ -1,6 +1,7 @@
 # /home/steink/proj/OSM
 
-Example_query = '
+Example_queries =  {
+  bayreuth: '
 (area
   ["boundary"="administrative"]
   ["admin_level"="6"]
@@ -8,4 +9,15 @@ Example_query = '
 )->.a;
 (node(area.a);way(area.a);rel(area.a););
 out meta;
+',
+  bamberg_insel: '
+(area
+  ["boundary"="postal_code"]
+  ["postal_code"="96047"];
+)->.a;
+(node(area.a);way(area.a);rel(area.a););
+out meta;
 '
+}
+
+# openstreetbrowser.org
