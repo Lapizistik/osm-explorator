@@ -64,6 +64,8 @@ module OSMExplorator
       
       @nodes = []
       nodeids.each do |nid|
+        # TODO / FIXME: this should actually do something like
+        # relation.datastore.node_by_id(nid)
         n = relation.datastore.nodes[nid]
         @nodes << n
         # TODO: think about making the node know 
@@ -73,6 +75,8 @@ module OSMExplorator
       
       @ways = []
       wayids.each do |wid|
+        # TODO / FIXME: this should actually do something like
+        # relation.datastore.way_by_id(nid)
         w = relation.datastore.ways[wid]
         @ways << w
         # TODO: see above
@@ -81,6 +85,8 @@ module OSMExplorator
       
       @relations = []
       relationids.each do |rid|
+        # TODO / FIXME: this should actually do something like
+        # relation.datastore.relation_by_id(nid)
         r = relation.datastore.relations[rid]
         @relations << r
         # TODO: see above

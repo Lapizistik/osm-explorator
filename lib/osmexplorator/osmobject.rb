@@ -12,9 +12,10 @@ module OSMExplorator
 
       @datastore = datastore
       
-      if @current
-        @id = @current.id
-        @history = [@current] unless @history
+      if current
+        @id = current.id
+        @history = [current] unless @history
+        @current = current
       end
       
       @regions = []
@@ -30,7 +31,17 @@ module OSMExplorator
     # Returns a filtered history of this node as an enumerator.
     def history(filter=@datastore.filter)
       if !@loaded
-        @history = @datastore.historyloader.load(self).sort_by { |i| i.version }
+        his = @datastore.historyloader.load(self).sort_by { |i| i.version }
+        
+        if @current
+          # Make sure that the current version is not overwritten by
+          # the versions from the database.
+          his.delete_if { |i| i.version == @current.version }
+          @history += his
+        else
+          @history = his
+        end
+        
         @loaded = true
       
 =begin
