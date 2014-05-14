@@ -40,3 +40,5 @@ build/
 /tracks/
 /util/
 *.pdf
+/examples/pglogin.rb
+/examples/bamberg_insel.json

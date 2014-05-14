@@ -1,8 +1,14 @@
+
+
+
+= Enumerators =
+There should be a number of specific enumerators calling specific
+filter methods for different objects.
+----------------
+
 = Filters =
 There is only a basic filter available and functionality like
-filtercomposition is not implemented yet. It is also not so clear
-what the differences between Filters and specific Enumerators is
-(except that filters can (should) be more sophisticated.)
+filtercomposition is not implemented yet.
 -----------
 
 = Overpass JSON Parsing =

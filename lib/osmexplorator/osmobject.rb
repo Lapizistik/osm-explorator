@@ -31,8 +31,10 @@ module OSMExplorator
         @history = @datastore.historyloader.load(self).sort_by { |i| i.version }
         @loaded = true
       
+=begin
         warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
           "missing #{history_missing_n} version(s)!" unless history_complete?
+=end
       end
       
       return FilteredEnumerator.new(@history, filter)
@@ -70,7 +72,11 @@ module OSMExplorator
     def history_missing
       @history ||= history
       
-      return (1..@current.version).to_a - @history.map { |o| o.version }
+      if @current
+        return (1..@current.version).to_a - @history.map { |o| o.version }
+      else
+        return []
+      end
     end
     
     def all_users

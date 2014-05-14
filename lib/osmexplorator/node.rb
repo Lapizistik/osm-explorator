@@ -32,7 +32,7 @@ module OSMExplorator
           json[:uid].to_i, json[:user], json[:tags])
       else
         history
-        @current = @history.last
+        @current = @history.last if @history
       end
 
       super(@datastore, @current)

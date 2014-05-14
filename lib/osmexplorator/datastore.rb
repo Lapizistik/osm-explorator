@@ -37,19 +37,16 @@ module OSMExplorator
       
       raw = OverpassRequest.do(query)
 
-      @regions[regionid] = region = Region.new(regionid, self)
+      return add_region(regionid, raw)
+    end
+    
+    def add_region_by_jsonfile(regionid, filename="json.data")
+      raise "regionid must not be nil!" if regionid.nil?
+      raise "»#{regionid}« already exists!" if @regions[regionid]
       
-      raw[:nodes].each do |jnode|
-        region.add_node(node_by_json(jnode))
-      end
-      raw[:ways].each do |jway|
-        region.add_way(way_by_json(jway))
-      end
-      raw[:relations].each do |jrel|
-        region.add_relation(relation_by_json(jrel))
-      end
+      raw = OverpassRequest.from_jsonfile(filename)
       
-      return region
+      return add_region(regionid, raw)
     end
   
     # Requests a node by its id. If this node does not exist in the
@@ -133,6 +130,22 @@ module OSMExplorator
     end
     
     private
+    
+    def add_region(regionid, raw)
+      @regions[regionid] = region = Region.new(regionid, self)
+      
+      raw[:nodes].each do |jnode|
+        region.add_node(node_by_json(jnode))
+      end
+      raw[:ways].each do |jway|
+        region.add_way(way_by_json(jway))
+      end
+      raw[:relations].each do |jrel|
+        region.add_relation(relation_by_json(jrel))
+      end
+      
+      return region
+    end
     
     def node_by_json(jnode)
       nid = jnode[:id].to_i

@@ -51,10 +51,13 @@ module OSMExplorator
       @nodes << node
       node.add_to_region(self)
       
+=begin
       node.all_users.each do |u| 
         u.add_to_region(self)
         @users << u
       end
+=end
+      @users << node.current.user
     end
     
     # Adds a way to this region and implicitely the author of this way
@@ -63,10 +66,13 @@ module OSMExplorator
       @ways << way
       way.add_to_region(self)
       
+=begin
       way.all_users.each do |u|
         u.add_to_region(self)
         @users << u
       end
+=end
+      @users << way.current.user
     end
     
     # Adds a relation to this region and implicitely the author of this relation
@@ -75,12 +81,15 @@ module OSMExplorator
       @relations << relation
       relation.add_to_region(self)
       
+=begin
       relation.all_users.each do |u|
         u.add_to_region(self)
         @users << u
       end
+=end
+      @users << relation.current.user
     end
-      
+         
     def inspect
       return "<#{self.class}:0x#{(object_id*2).to_s(16)} "+
              "id => #{@id}, "+
