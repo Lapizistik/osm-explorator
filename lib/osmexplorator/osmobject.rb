@@ -12,10 +12,12 @@ module OSMExplorator
 
       @datastore = datastore
       
-      @id = @current.id
-
+      if @current
+        @id = @current.id
+        @history = [@current] unless @history
+      end
+      
       @regions = []
-      @history = [@current]
     end
     
     def add_to_region(region)
