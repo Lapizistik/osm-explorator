@@ -30,7 +30,7 @@ module OSMExplorator
         Time.parse(json[:timestamp]), json[:changeset].to_i,
         json[:uid].to_i, json[:user].to_s, json[:tags])
 
-        super(datastore, current)
+        super(datastore, @current)
     end
 
   end

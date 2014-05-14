@@ -57,7 +57,7 @@ bi.relations.each do |r|
         puts "[-] RelationInstance of #{r.id} is nil!"
       end
     end
-    puts "[-] History is empty for way #{r.id}" if r.history.to_a.empty?
+    puts "[-] History is empty for relation #{r.id}" if r.history.to_a.empty?
   end
 end
 
