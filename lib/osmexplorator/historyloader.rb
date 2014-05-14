@@ -10,6 +10,49 @@ module OSMExplorator
     # dbparams see PG::Connection.initialize
     def initialize(dbparams)
       @pgc = PG::Connection.open(dbparams)
+      
+      @pgc.prepare("nodeLoad",
+        "SELECT nodeid, version, latitude, longitude, "+
+        "ts, changeset, uid, username "+
+        "FROM Node "+
+        "WHERE nodeid = $1 "+
+        "ORDER BY version ASC")
+      
+      @pgc.prepare("wayLoad",
+        "SELECT wayid, version, ts, changeset, uid, username "+
+        "FROM Way "+
+        "WHERE wayid = $1 "+
+        "ORDER BY version ASC")
+      @pgc.prepare("wayLoadNodes",
+        "SELECT nodeid "+
+        "FROM Way_Node "+
+        "WHERE "+
+        "wayid = $1 AND "+
+        "wayversion = $2")
+        
+      @pgc.prepare("relationLoad",
+        "SELECT relationid, version, ts, changeset, uid, username "+
+        "FROM Relation "+
+        "WHERE relationid = $1 "+
+        "ORDER BY version ASC")
+      @pgc.prepare("relationLoadNodes",
+        "SELECT nodeid "+
+        "FROM Relation_Node "+
+        "WHERE "+
+        "relationid = $1 AND "+
+        "relationversion = $2")
+      @pgc.prepare("relationLoadWays",
+        "SELECT nodeid "+
+        "FROM Relation_Node "+
+        "WHERE "+
+          "relationid = $1 AND "+
+          "relationversion = $2")
+      @pgc.prepare("relationLoadRelations",
+        "SELECT relation_reference_id "+
+        "FROM Relation_Relation "+
+        "WHERE "+
+          "relation_referent_id = $1 AND "+
+          "relation_referent_version = $2")
     end
     
     def max_node_version(nodeid)
@@ -38,11 +81,7 @@ module OSMExplorator
     end
 
     def load_for_node(node)
-      nodesRes = @pgc.exec(
-        "SELECT nodeid, version, latitude, longitude, "+
-        "ts, changeset, uid, username "+
-        "FROM Node "+
-        "WHERE nodeid = #{node.id}")
+      nodesRes = @pgc.exec_prepared("nodeLoad", [node.id])
       
       nodes = []
       nodesRes.each do |nr|
@@ -57,10 +96,7 @@ module OSMExplorator
     end
     
     def load_for_way(way)
-      waysRes = @pgc.exec(
-        "SELECT wayid, version, ts, changeset, uid, username "+
-        "FROM Way "+
-        "WHERE wayid = #{way.id}")
+      waysRes = @pgc.exec_prepared("wayLoad", [way.id])
 
       waysTmp = []
       waysRes.each do |wr|
@@ -75,12 +111,8 @@ module OSMExplorator
 
       ways = []
       waysTmp.each do |wt|
-        wayNodesRes = @pgc.exec(
-          "SELECT nodeid "+
-          "FROM Way_Node "+
-          "WHERE "+
-            "wayid = #{wt[:id]} AND "+
-            "wayversion = #{wt[:version]}")
+        wayNodesRes = @pgc.exec_prepared(
+        "wayLoadNodes", [wt[:id], wt[:version]])
         
         wt[:nodeids] = wayNodesRes.values.flatten.map { |ni| ni.to_i }
 
@@ -94,10 +126,7 @@ module OSMExplorator
     end
     
     def load_for_relation(relation)
-      relationsRes = @pgc.exec(
-        "SELECT relationid, version, ts, changeset, uid, username "+
-        "FROM Relation "+
-        "WHERE relationid = #{relation.id}")
+      relationsRes = @pgc.exec_prepared("relationLoad", [relation.id])
                 
       relationsTmp = []
       relationsRes.each do |rr|
@@ -112,28 +141,17 @@ module OSMExplorator
       
       relations = []
       relationsTmp.each do |rt|
-        relationNodesRes = @pgc.exec(
-          "SELECT nodeid "+
-          "FROM Relation_Node "+
-          "WHERE "+
-            "relationid = #{rt[:id]} AND "+
-            "relationversion = #{rt[:version]}")
+      
+        relationNodesRes = @pgc.exec_prepared(
+          "relationLoadNodes", [rt[:id], rt[:version]])
         rt[:nodeids] = relationNodesRes.values.flatten.map { |ni| ni.to_i }
         
-        relationWaysRes = @pgc.exec(
-          "SELECT wayid "+
-          "FROM Relation_Way "+
-          "WHERE "+
-            "relationid = #{rt[:id]} AND "+
-            "relationversion = #{rt[:version]}")
+        relationWaysRes = @pgc.exec_prepared(
+          "relationLoadWays", [rt[:id], rt[:version]])
         rt[:wayids] = relationWaysRes.values.flatten.map { |wi| wi.to_i }
         
-        relationRelationsRes = @pgc.exec(
-          "SELECT relation_reference_id "+
-          "FROM Relation_Relation "+
-          "WHERE "+
-            "relation_referent_id = #{rt[:id]} AND "+
-            "relation_referent_version = #{rt[:version]}")
+        relationRelationsRes = @pgc.exec_prepared(
+          "relationLoadRelations", [rt[:id], rt[:version]])
         rt[:relationids] = relationRelationsRes.values.flatten.map { |ri| ri.to_i }
         
         relations << RelationInstance.new(relation,
