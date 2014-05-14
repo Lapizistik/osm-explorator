@@ -19,10 +19,10 @@ puts "> Number of nodes:\t #{bi.nodes.length}"
 puts "> Number of ways:\t #{bi.ways.length}"
 puts "> Number of relations:\t #{bi.relations.length}"
 
-puts "[!] Checking for nil nodes in :bamberg_insel..."
+puts "[!] Checking for unusual nodes in :bamberg_insel..."
 bi.nodes.each do |n|
   if n.nil?
-    puts "[-] Node is nil!"
+    puts "[-] A node is nil!"
   else
     n.history.each do |hn|
       if hn.nil?
@@ -33,10 +33,10 @@ bi.nodes.each do |n|
   end
 end
 
-puts "[!] Checking for nil ways in :bamberg_insel..."
+puts "[!] Checking for unusual ways in :bamberg_insel..."
 bi.ways.each do |w|
   if w.nil?
-    puts "[-] Way is nil!"
+    puts "[-] A way is nil!"
   else
     w.history.each do |hw|
       if hw.nil?
@@ -47,10 +47,10 @@ bi.ways.each do |w|
   end
 end
 
-puts "[!] Checking for nil relations in :bamberg_insel..."
+puts "[!] Checking for unusual relations in :bamberg_insel..."
 bi.relations.each do |r|
   if r.nil?
-    puts "[-] Relation is nil!"
+    puts "[-] A relation is nil!"
   else
     r.history.each do |hr|
       if hr.nil?
