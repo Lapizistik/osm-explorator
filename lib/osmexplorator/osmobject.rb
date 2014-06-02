@@ -27,6 +27,19 @@ module OSMExplorator
 
       @regions << region
     end
+
+    def regions
+      @regions
+    end
+
+
+    def tags
+      @current.tags
+    end
+
+    def tag(key)
+      @current.tag(key)
+    end
     
     # Returns a filtered history of this node as an enumerator.
     def history(filter=@datastore.filter)
@@ -44,6 +57,9 @@ module OSMExplorator
         
         @loaded = true
 
+
+        # FIXME: we should not need this, but something is wrong
+        repair_history!
 =begin
         warn  "Incomplete history for #{self.class} with id = #{self.id}: "+
           "missing #{history_missing_n} version(s)!" unless history_complete?
@@ -52,7 +68,13 @@ module OSMExplorator
       
       return FilteredEnumerator.new(@history, filter)
     end
-    
+
+    # FIXME: we should not need this!
+    def repair_history!
+      @history.sort_by! { |i| i.version }
+      @current = @history.last
+    end
+
     # returns a history for dotgraph creation
     def graph_history(filter=@datastore.filter, recursive=false)
       if recursive
@@ -92,8 +114,8 @@ module OSMExplorator
       end
     end
     
-    def all_users
-      return history.map { |oi| oi.user }
+    def all_users(filter=@datastore.filter)
+      return history(filter).map { |oi| oi.user }
     end
     
     def uniq_users(filter=@datastore.filter, recursive=false)
@@ -119,6 +141,10 @@ module OSMExplorator
       inspect
     end
 
+    
+  end
+
+  class OSMObjectInstance
     
   end
 

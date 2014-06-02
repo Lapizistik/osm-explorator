@@ -18,12 +18,16 @@ module OSMExplorator
 
       @datastore = datastore
       
+# Fixme: No, do not change the input if not necessary!
       json[:nodes] ||= []
       json[:ways] ||= []
       json[:relations] ||= []
       
       @current = RelationInstance.new(self,
         json[:id].to_i, json[:version].to_i,
+# FIXME: this is plain wrong! The json-file looks different!
+# And the initialize-method should not know about it anyway
+# We need a specialized method for this
         json[:nodes].map { |ni| ni.to_i },
         json[:ways].map { |wi| wi.to_i },
         json[:relations].map { |ri| ri.to_i },
@@ -33,6 +37,27 @@ module OSMExplorator
         super(datastore, @current)
     end
 
+    def tags
+      @current.tags
+    end
+
+    def tag(key)
+      @current.tag(key)
+    end
+
+
+    def nodes(filter=@datastore.filter)
+      @current.nodes(filter)
+    end
+    
+    def ways(filter=@datastore.filter)
+      @current.ways(filter)
+    end
+    
+    def relations(filter=@datastore.filter)
+      current.relations(filter)
+    end
+    
   end
   
   
@@ -52,6 +77,7 @@ module OSMExplorator
     # nodes is an array of nodeids which are resolved
     # to Node objects.
     def initialize(relation, id, version,
+# FIXME: relation members can have a role (use hashes?)
                    nodeids, wayids, relationids,
                    timestamp, changeset, uid, username, tags)
       raise "relation #{relation} must be a "+
@@ -102,6 +128,11 @@ module OSMExplorator
       @tags = tags
     end
     
+    # FIXME: belongs to OsmobjectInstance!
+    def tag(key)
+      @tags && @tags[key]
+    end
+
     def nodes(filter=@relation.datastore.filter)
       return FilteredEnumerator.new(@nodes, filter)
     end
@@ -125,8 +156,13 @@ module OSMExplorator
     def all_relations
       return @relations
     end
+
+    def regions
+      @relation.regions
+    end
     
     def inspect
+
       return "#<#{self.class}:0x#{(object_id*2).to_s(16)} "+
              "relation => 0x#{(@relation.object_id*2).to_s(16)}, "+
              "id => #{@id}, "+

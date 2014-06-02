@@ -47,24 +47,26 @@ module OSMExplorator
     def history_by_nodes(filter=@datastore.filter)
       his = history(filter).to_a
       
-      # Step 1:
-      # Remove all way versions which only have tag-changes in them
-      # as we are not interested in tag-changes.
-      wayHistory = his[1..-1].inject([his.first]) { |res, wi|
-        wn = wi.nodes.map {|n| n.id}.uniq.sort
-        rn = res.last.nodes.map {|n| n.id}.uniq.sort
-        (wn == rn) ? res : res << wi
-      }
-      
+      # WRONG:
+#      # Step 1:
+#      # Remove all way versions which only have tag-changes in them
+#      # as we are not interested in tag-changes.
+#      wayHistory = his[1..-1].inject([his.first]) { |res, wi|
+#        wn = wi.nodes.map {|n| n.id}.uniq.sort
+#        rn = res.last.nodes.map {|n| n.id}.uniq.sort
+#        (wn == rn) ? res : res << wi
+#      }
+#    
+      wayHistory = his
       # Step 2:
       # Find the time intervals between the versions
       
       # Create the interval sequence
-      timeIntervals = wayHistory[0..-2].zip(wayHistory[1..-1])
+#      timeIntervals = wayHistory[0..-2].zip(wayHistory[1..-1])
       
       # Convert the sequence to ranges
-      timeIntervals.map! { |i| 
-        Range.new(i[0].timestamp.to_f, i[1].timestamp.to_f, true) # exclude
+      timeIntervals = wayHistory.each_cons(2).collect { |a,b| 
+        Range.new(a.timestamp.to_f, b.timestamp.to_f, true) # exclude
       }
       
       # Add the last version with an unbounded range
@@ -187,6 +189,10 @@ module OSMExplorator
     
     def all_nodes
       return @nodes
+    end
+
+    def regions
+      @way.regions
     end
     
     def inspect

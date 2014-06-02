@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'time'
+require 'osmexplorator/changetype'
 
 module OSMExplorator
 
@@ -44,6 +45,18 @@ module OSMExplorator
       return NodeLocationHistoryEnumerator.new(history)
     end
 
+    # FIXME: make filter-aware!
+    # Add some Enumerator!
+    def history_by_changetype
+      h = history
+      return [] unless h.first
+      hct = [Changetype::LOCATION | 
+             ((h.first.tags.length>0) ? Changetype::TAGS : Changetype::NONE)]
+      h.each_cons(2) do |a,b|
+        hct << a.changetype(b)
+      end
+      hct
+    end
   end
   
   
@@ -80,6 +93,17 @@ module OSMExplorator
       
       @tags = tags
     end
+
+    def regions
+      @node.regions
+    end
+
+
+    # FIXME: belongs to OsmobjectInstance!
+    def tag(key)
+      @tags && @tags[key]
+    end
+
     
     def inspect
       return "#<#{self.class}:0x#{(object_id*2).to_s(16)} "+
@@ -102,8 +126,22 @@ module OSMExplorator
     # false otherwise or if ni is nil
     def equal_by_location?(ni)
       return false if ni.nil?
+      # FIXME: should not silently fail if called with nil
+      # So if calling with nil is a bug this shoult fail! 
+      # (fail as early as possible)
+      # I am not sure if it is currently called with nil sometimes. 
+      # If it is this should change!
+      #
+      # we do not test whether ni responds to lat and lon…
 
       ni.lat == @lat && ni.lon == @lon
+    end
+    
+    def changetype(ni)
+      ct = Changetype::NONE
+      ct |= Changetype::LOCATION  unless ((ni.lat == @lat) && (ni.lon == @lon))
+      ct |= Changetype::TAGS      unless (ni.tags == @tags)
+      ct
     end
     
   end

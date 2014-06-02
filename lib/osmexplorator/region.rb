@@ -45,19 +45,23 @@ module OSMExplorator
       return FilteredEnumerator.new(@users, filter)
     end
 
+    def all_relations
+      @relations
+    end
+
     # Adds a node to this region and implicitely the author of this node
     # if the user is not a member of the authors of this region yet
     def add_node(node)
       @nodes << node
       node.add_to_region(self)
       
-=begin
+# =begin
       node.all_users.each do |u| 
         u.add_to_region(self)
         @users << u
       end
-=end
-      @users << node.current.user
+# =end
+#      @users << node.current.user
     end
     
     # Adds a way to this region and implicitely the author of this way
@@ -66,13 +70,13 @@ module OSMExplorator
       @ways << way
       way.add_to_region(self)
       
-=begin
+# =begin
       way.all_users.each do |u|
         u.add_to_region(self)
         @users << u
       end
-=end
-      @users << way.current.user
+# =end
+#      @users << way.current.user
     end
     
     # Adds a relation to this region and implicitely the author of this relation
@@ -81,13 +85,13 @@ module OSMExplorator
       @relations << relation
       relation.add_to_region(self)
       
-=begin
+# =begin
       relation.all_users.each do |u|
         u.add_to_region(self)
         @users << u
       end
-=end
-      @users << relation.current.user
+# =end
+#      @users << relation.current.user
     end
          
     def inspect

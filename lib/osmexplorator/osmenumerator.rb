@@ -76,6 +76,7 @@ module OSMExplorator
       
       super() do |y|
         objs.each do |o|
+          # Broken! Should be filter.allowed_something? ???
           y.yield(o) if allowed?(o)
         end
       end

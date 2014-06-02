@@ -68,19 +68,19 @@ module OSMExplorator
     end
     
     def ways
-      return OSMEnumerator.new(@wayInstances.map { |wi| wi.node })
+      return OSMEnumerator.new(@wayInstances.map { |wi| wi.way })
     end
     
     def uniq_ways
-      return OSMEnumerator.new(@wayInstances.map { |wi| wi.node }.uniq)
+      return OSMEnumerator.new(@wayInstances.map { |wi| wi.way }.uniq)
     end
     
     def relations
-      return OSMEnumerator.new(@relationInstances.map { |ri| ni.node })
+      return OSMEnumerator.new(@relationInstances.map { |ri| ri.relation })
     end
     
     def uniq_relations
-      return OSMEnumerator.new(@relationInstances.map { |ri| ni.node }.uniq)
+      return OSMEnumerator.new(@relationInstances.map { |ri| ri.relation }.uniq)
     end
     
     # Returns all regions in which this user was active
@@ -160,17 +160,28 @@ module OSMExplorator
       id <=> u.id
     end
 
+    def ready?
+      @ready
+    end
+
     private 
 
     def load_from_osm
-      info = UserLoader.load_info(@id)
+      if info = UserLoader.load_info(@id)
       
-      @name = info[:name]
-      @description = info[:description]
-      @tracecount = info[:tracecount]
-      @changesetcount = info[:changesetcount]
-      
-      @ready = true
+        @name = info[:name]
+        @description = info[:description]
+        @tracecount = info[:tracecount]
+        @changesetcount = info[:changesetcount]
+        
+        @ready = true
+      else
+        @name ||= ""
+        @description = "[!] Download of user #{@id} did not work! [!]"
+        @tracecount = nil
+        @changesetcount = nil
+        @ready = :broken
+      end
     end
   
   end

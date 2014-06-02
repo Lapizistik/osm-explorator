@@ -233,7 +233,7 @@ module OSMExplorator
       end
       # ---
       
-      counts = params[:count] || :add
+      counts = params[:count] || params[:counts] || :add
       k = params[:k] || 2.0
       gparams = {directed: true}
       if h = params[:gparams] 
