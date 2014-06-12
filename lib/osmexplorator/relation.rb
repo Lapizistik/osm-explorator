@@ -10,6 +10,7 @@ module OSMExplorator
   # version of this relation is called the current instance.
   class Relation < OSMObject
   
+
     # Creates a new relation with current as its current instance
     # json is a Hash containing the results of an overpass json request
     def initialize(datastore, json)
@@ -88,6 +89,21 @@ module OSMExplorator
       @id = id
       @version = version
       
+
+      ## Restructure?
+#      @members = []
+#      
+#      class Member
+#        Types = {'node' => Node, 'way' => Way, 'relation' => Relation}
+#        def initialize(data)
+#          @type = Types[data['type']]
+#          @id = data['ref']  # to_i ???
+#          @role = data['role']
+#        end
+#      end
+      ##
+
+
       @nodes = []
       nodeids.each do |nid|
         # TODO / FIXME: this should actually do something like
