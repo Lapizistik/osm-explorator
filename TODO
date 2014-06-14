@@ -1,41 +1,63 @@
+= JSON Parsing =
+Relation JSON is not parsed properly yet.
+The object itself should change.
+members -> node/ways/relations + role
+
+= History Loader Way/Relation Order =
+Node which constitute ways have to be loaded ordered.
+Are relations ordered?
+
+= OSMObjectInstance =
+Introduce an OSMObjectInstance class which inherits from OSMObject.
+Methods: tags, regions, ...?
+
+= HistoryLoader Weak Reference =
+HistoryLoader should be a weak reference in Datastore,
+so (un)marshalling the DS works bug-free. E.g. introduce a method
+history_loader() in DS which reloads the HS if necessary.
+
+= OSMObject behaviour like OSMObjectInstance =
+Delegate(?) behaviour from any OSMObject to its current instance.
+
+= Freeze =
+Look for possibilities when freeze on hashes etc. makes sense.
+
+= Remove regions =
+How can regions be removed from the datastore without causing
+a lot of trouble?
+
+= History Loader Tags =
+If there are no tag-changes between two versions, nodeinstances
+should reference to the same tag hash object.
+
 = Redundant Code =
 graphs.rb: Datastore.*graph
   -> Setting the parameters
   -> geoobjects.each loops
 
-____________________________________
-____________________________________
-
-
 = Enumerators =
 There should be a number of specific enumerators calling specific
 filter methods for different objects.
-----------------
 
 = Filters =
 There is only a basic filter available and functionality like
 filtercomposition is not implemented yet.
------------
 
 = Overpass JSON Parsing =
 OverpassRequest.parse_json() is implemented in a complicated way and
 based on assumptions. It probably also leaves room for improvement
 from a performance point of view.
--------------------------
 
 = Overpass Request Format = 
 OverpassRequest.do() does not support a format other than JSON.
 Remove params[:format] completely?
----------------------------
 
 = Backlinks =
 Backlink from Node to WayInstance, i.e. answering the question
 "Which Way(instance)s is this node part of?". 
 See way.rb WayInstance.initialize!
 Same for Relation->Node/Way/Relation.
---------------
 
 = Persist Users =
 Node./Way./Relation.all_users maybe introduce @users of class Set
 and manage users persistently.
------------------
