@@ -42,8 +42,8 @@ module OSMExplorator
         "relationid = $1 AND "+
         "relationversion = $2")
       @pgc.prepare("relationLoadWays",
-        "SELECT nodeid "+
-        "FROM Relation_Node "+
+        "SELECT wayid "+
+        "FROM Relation_Way "+
         "WHERE "+
           "relationid = $1 AND "+
           "relationversion = $2")
