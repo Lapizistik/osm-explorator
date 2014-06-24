@@ -36,7 +36,8 @@ module OSMExplorator
         "FROM Way_Node "+
         "WHERE "+
         "wayid = $1 AND "+
-        "wayversion = $2")
+        "wayversion = $2 "+
+        "ORDER BY id ASC")
       @pgc.prepare("wayTags", loadTagsSQL % ["WayTag", "wayid"])
         
       # -- Relation --
@@ -50,19 +51,22 @@ module OSMExplorator
         "FROM Relation_Node "+
         "WHERE "+
         "relationid = $1 AND "+
-        "relationversion = $2")
+        "relationversion = $2 "+
+        "ORDER BY id ASC")
       @pgc.prepare("relationLoadWays",
         "SELECT wayid "+
         "FROM Relation_Way "+
         "WHERE "+
           "relationid = $1 AND "+
-          "relationversion = $2")
+          "relationversion = $2 "+
+          "ORDER BY id ASC")
       @pgc.prepare("relationLoadRelations",
         "SELECT relation_reference_id "+
         "FROM Relation_Relation "+
         "WHERE "+
           "relation_referent_id = $1 AND "+
-          "relation_referent_version = $2")
+          "relation_referent_version = $2 "+
+          "ORDER BY id ASC")
       @pgc.prepare("relationTags", loadTagsSQL % ["RelationTag", "relationid"])
     end
     
@@ -103,7 +107,7 @@ module OSMExplorator
         nid = nr['nodeid'].to_i
         nversion = nr['version'].to_i
         
-        tags = load_tags(nid, nversion, "nodeTags")
+        tags = load_tags(:node, nid, nversion)
         
         nodeInstances << NodeInstance.new(node,
           nid, nversion,
@@ -123,7 +127,7 @@ module OSMExplorator
         wid = wr['wayid'].to_i
         wversion = wr['version'].to_i
         
-        tags = load_tags(wid, wversion, "wayTags")
+        tags = load_tags(:way, wid, wversion)
       
         waysTmp << {
           :id => wid,
@@ -158,8 +162,8 @@ module OSMExplorator
         rid = rr['relationid'].to_i
         rversion = rr['version'].to_i
         
-        tags = load_tags(rid, rversion, "relationTags")
-      
+        tags = load_tags(:relation, rid, rversion)
+
         relationsTmp << {
           :id => rid,
           :version => rversion,
@@ -205,7 +209,18 @@ module OSMExplorator
       return res.getvalue(0,0).to_i
     end
     
-    def load_tags(id, version, prepStmt)
+    def load_tags(osmobj, id, version)
+      case osmobj
+        when :node
+          prepStmt = "nodeTags"
+        when :way
+          prepStmt = "wayTags"
+        when :relation
+          prepStmt = "relationTags"
+        else
+          return {}
+      end
+      
       tagsRes = @pgc.exec_prepared(prepStmt, [id, version])
       
       return tagsRes.inject({}) { |res, t| res[t['keystr']] = t['valuestr'] ; res }
