@@ -65,12 +65,11 @@ module OSMExplorator
   # A RelationInstance is a concrete relation which existed at some point in time.
   # It is identified by its id and version and can refer to a number of
   # nodes, ways or other relations.
-  class RelationInstance
+  class RelationInstance < OSMObjectInstance
     attr_reader :relation,
                 :id, :version, 
                 :timestamp, :changeset,
-                :user,
-                :tags
+                :user
     
     # way must be the parent Way.
     # All other params must have the correct class.
@@ -83,6 +82,8 @@ module OSMExplorator
                    timestamp, changeset, uid, username, tags)
       raise "relation #{relation} must be a "+
             "Relation!" unless relation.kind_of?(Relation)
+            
+      super()
       
       @relation = relation
 
@@ -144,11 +145,6 @@ module OSMExplorator
       @tags = tags
     end
     
-    # FIXME: belongs to OsmobjectInstance!
-    def tag(key)
-      @tags && @tags[key]
-    end
-
     def nodes(filter=@relation.datastore.filter)
       return FilteredEnumerator.new(@nodes, filter)
     end
@@ -178,7 +174,6 @@ module OSMExplorator
     end
     
     def inspect
-
       return "#<#{self.class}:0x#{(object_id*2).to_s(16)} "+
              "relation => 0x#{(@relation.object_id*2).to_s(16)}, "+
              "id => #{@id}, "+

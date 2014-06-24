@@ -124,7 +124,7 @@ module OSMExplorator
       else
         # TODO: this is the same as all_users()
         # Create all_users_recursive() for the above case?
-        return history.map{ |oi| oi.user }.uniq
+        return history.map { |oi| oi.user }.uniq
       end
     end
        
@@ -145,6 +145,16 @@ module OSMExplorator
   end
 
   class OSMObjectInstance
+  
+    attr_reader :tags
+    
+    def initialize()
+      @tags = {}
+    end
+  
+    def tag(key)
+      @tags && @tags[key]
+    end
     
   end
 

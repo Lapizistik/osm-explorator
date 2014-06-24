@@ -35,8 +35,8 @@ module OSMExplorator
         "SELECT nodeid "+
         "FROM Way_Node "+
         "WHERE "+
-        "wayid = $1 AND "+
-        "wayversion = $2 "+
+          "wayid = $1 AND "+
+          "wayversion = $2 "+
         "ORDER BY id ASC")
       @pgc.prepare("wayTags", loadTagsSQL % ["WayTag", "wayid"])
         
@@ -50,8 +50,8 @@ module OSMExplorator
         "SELECT nodeid "+
         "FROM Relation_Node "+
         "WHERE "+
-        "relationid = $1 AND "+
-        "relationversion = $2 "+
+          "relationid = $1 AND "+
+          "relationversion = $2 "+
         "ORDER BY id ASC")
       @pgc.prepare("relationLoadWays",
         "SELECT wayid "+
@@ -59,14 +59,14 @@ module OSMExplorator
         "WHERE "+
           "relationid = $1 AND "+
           "relationversion = $2 "+
-          "ORDER BY id ASC")
+        "ORDER BY id ASC")
       @pgc.prepare("relationLoadRelations",
         "SELECT relation_reference_id "+
         "FROM Relation_Relation "+
         "WHERE "+
           "relation_referent_id = $1 AND "+
           "relation_referent_version = $2 "+
-          "ORDER BY id ASC")
+        "ORDER BY id ASC")
       @pgc.prepare("relationTags", loadTagsSQL % ["RelationTag", "relationid"])
     end
     

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# This file extends classes by graph functionality
+
 # todo: change this path when we did the gem
 require 'util/dotgraph'
 

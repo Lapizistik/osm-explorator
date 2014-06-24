@@ -12,7 +12,7 @@ module OSMExplorator
   class Node < OSMObject
 
     # Creates a new Node with the given nodeid.
-    # This noded is loaded from the database from its id unless json
+    # This node is loaded from the database from its id unless json
     # is provided when nodeid must be nil.
     # json must be in the form of a Hash containing 
     # the results of an overpass json request.
@@ -62,13 +62,12 @@ module OSMExplorator
   
   # A NodeInstance is a concrete node which existed at some point in time.
   # It is identified by its id and version.
-  class NodeInstance
+  class NodeInstance < OSMObjectInstance
     attr_reader :node,
                 :id, :version, 
                 :lat, :lon,
                 :timestamp, :changeset,
-                :user,
-                :tags
+                :user
     
     # node must be the parent node of this instance.
     # All other params must have the correct class.
@@ -76,6 +75,8 @@ module OSMExplorator
     def initialize(node, id, version, lat, lon,
                    timestamp, changeset, uid, username, tags)
       raise "node #{node} must be a Node!" unless node.kind_of?(Node)
+      
+      super()
       
       @node = node
 
@@ -97,13 +98,6 @@ module OSMExplorator
     def regions
       @node.regions
     end
-
-
-    # FIXME: belongs to OsmobjectInstance!
-    def tag(key)
-      @tags && @tags[key]
-    end
-
     
     def inspect
       return "#<#{self.class}:0x#{(object_id*2).to_s(16)} "+
@@ -127,7 +121,7 @@ module OSMExplorator
     def equal_by_location?(ni)
       return false if ni.nil?
       # FIXME: should not silently fail if called with nil
-      # So if calling with nil is a bug this shoult fail! 
+      # So if calling with nil is a bug this should fail! 
       # (fail as early as possible)
       # I am not sure if it is currently called with nil sometimes. 
       # If it is this should change!

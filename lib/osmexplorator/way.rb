@@ -143,12 +143,11 @@ module OSMExplorator
   
   # A WayInstance is a concrete way which existed at some point in time.
   # It is identified by its id and version and refers to a number of nodes.
-  class WayInstance
+  class WayInstance < OSMObjectInstance
     attr_reader :way,
                 :id, :version,
                 :timestamp, :changeset,
-                :user,
-                :tags
+                :user
     
     # way must be the parent Way.
     # All other params must have the correct class.
@@ -158,6 +157,8 @@ module OSMExplorator
     def initialize(way, id, version, nodeids,
                    timestamp, changeset, uid, username, tags)
       raise "way #{way} must be a Way!" unless way.kind_of?(Way)
+      
+      super()
       
       @way = way
 
