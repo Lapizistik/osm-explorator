@@ -71,7 +71,7 @@ module OSMExplorator
                 :timestamp, :changeset,
                 :user
     
-    # way must be the parent Way.
+    # relation must be the parent Relation.
     # All other params must have the correct class.
     # uid is resolved to a User object.
     # nodes is an array of nodeids which are resolved
