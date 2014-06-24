@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 require 'time'
+
+require 'osmexplorator/osmobject'
 require 'osmexplorator/changetype'
 
 module OSMExplorator

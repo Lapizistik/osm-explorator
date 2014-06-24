@@ -2,6 +2,8 @@
 
 require 'time'
 
+require 'osmexplorator/osmobject'
+
 module OSMExplorator
 
   # A Relation is a geographical object which is identified by its id.
@@ -10,7 +12,6 @@ module OSMExplorator
   # version of this relation is called the current instance.
   class Relation < OSMObject
   
-
     # Creates a new relation with current as its current instance
     # json is a Hash containing the results of an overpass json request
     def initialize(datastore, json)
@@ -19,19 +20,8 @@ module OSMExplorator
 
       @datastore = datastore
       
-# Fixme: No, do not change the input if not necessary!
-      json[:nodes] ||= []
-      json[:ways] ||= []
-      json[:relations] ||= []
-      
       @current = RelationInstance.new(self,
-        json[:id].to_i, json[:version].to_i,
-# FIXME: this is plain wrong! The json-file looks different!
-# And the initialize-method should not know about it anyway
-# We need a specialized method for this
-        json[:nodes].map { |ni| ni.to_i },
-        json[:ways].map { |wi| wi.to_i },
-        json[:relations].map { |ri| ri.to_i },
+        json[:id].to_i, json[:version].to_i, json[:members],
         Time.parse(json[:timestamp]), json[:changeset].to_i,
         json[:uid].to_i, json[:user].to_s, json[:tags])
 
@@ -74,11 +64,8 @@ module OSMExplorator
     # relation must be the parent Relation.
     # All other params must have the correct class.
     # uid is resolved to a User object.
-    # nodes is an array of nodeids which are resolved
-    # to Node objects.
-    def initialize(relation, id, version,
-# FIXME: relation members can have a role (use hashes?)
-                   nodeids, wayids, relationids,
+    # members is an array of hashes with keys 'type', 'ref' and 'role'.
+    def initialize(relation, id, version, members,
                    timestamp, changeset, uid, username, tags)
       raise "relation #{relation} must be a "+
             "Relation!" unless relation.kind_of?(Relation)
@@ -90,23 +77,25 @@ module OSMExplorator
       @id = id
       @version = version
       
+      ids = {:nodeids => [], :wayids => [], :relationids => []}
+      @members = [] # TODO : this is not used anywhere
+      
+      members.each do |m|
+        member = Member.new(m)
+        @members << member
 
-      ## Restructure?
-#      @members = []
-#      
-#      class Member
-#        Types = {'node' => Node, 'way' => Way, 'relation' => Relation}
-#        def initialize(data)
-#          @type = Types[data['type']]
-#          @id = data['ref']  # to_i ???
-#          @role = data['role']
-#        end
-#      end
-      ##
-
-
+        case m['type']
+          when "node"
+            ids[:nodeids] << member.id
+          when "way"
+            ids[:wayids] << member.id
+          when "relation"
+            ids[:relationids] << member.id
+        end
+      end
+      
       @nodes = []
-      nodeids.each do |nid|
+      ids[:nodeids].each do |nid|
         # TODO / FIXME: this should actually do something like
         # relation.datastore.node_by_id(nid)
         n = relation.datastore.nodes[nid]
@@ -117,7 +106,7 @@ module OSMExplorator
       end
       
       @ways = []
-      wayids.each do |wid|
+      ids[:wayids].each do |wid|
         # TODO / FIXME: this should actually do something like
         # relation.datastore.way_by_id(nid)
         w = relation.datastore.ways[wid]
@@ -127,7 +116,7 @@ module OSMExplorator
       end
       
       @relations = []
-      relationids.each do |rid|
+      ids[:relationids].each do |rid|
         # TODO / FIXME: this should actually do something like
         # relation.datastore.relation_by_id(nid)
         r = relation.datastore.relations[rid]
@@ -189,6 +178,18 @@ module OSMExplorator
     
     def to_s
       inspect
+    end
+  end
+  
+  class Member
+    Types = {'node' => Node, 'way' => Way, 'relation' => Relation}
+    
+    attr_reader :type, :id, :role
+
+    def initialize(data)
+      @type = Types[data['type']]
+      @id = data['ref'].to_i
+      @role = data['role']
     end
   end
 

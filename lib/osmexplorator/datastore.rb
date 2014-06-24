@@ -125,7 +125,7 @@ module OSMExplorator
       inspect
     end
 
-    # Class methods
+
     class << self
     
       # Returns a Datastore object loaded from the filepath specified

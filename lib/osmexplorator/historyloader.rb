@@ -3,10 +3,14 @@
 require 'pg'
 require 'time'
 
+require 'osmexplorator/node'
+require 'osmexplorator/way'
+require 'osmexplorator/relation'
+
 module OSMExplorator
 
   class HistoryLoader
-
+  
     # Initializes the historyloader and prepares all SQL statements
     # dbparams see PG::Connection.initialize
     def initialize(dbparams)
@@ -47,21 +51,21 @@ module OSMExplorator
         "WHERE relationid = $1 "+
         "ORDER BY version ASC")
       @pgc.prepare("relationLoadNodes",
-        "SELECT nodeid "+
+        "SELECT roleStr, nodeid "+
         "FROM Relation_Node "+
         "WHERE "+
           "relationid = $1 AND "+
           "relationversion = $2 "+
         "ORDER BY id ASC")
       @pgc.prepare("relationLoadWays",
-        "SELECT wayid "+
+        "SELECT roleStr, wayid "+
         "FROM Relation_Way "+
         "WHERE "+
           "relationid = $1 AND "+
           "relationversion = $2 "+
         "ORDER BY id ASC")
       @pgc.prepare("relationLoadRelations",
-        "SELECT relation_reference_id "+
+        "SELECT roleStr, relation_reference_id "+
         "FROM Relation_Relation "+
         "WHERE "+
           "relation_referent_id = $1 AND "+
@@ -175,22 +179,47 @@ module OSMExplorator
       
       relationInstances = []
       relationsTmp.each do |rt|
-      
+        rt[:members] = []
+        
+        # Nodes
         relationNodesRes = @pgc.exec_prepared(
           "relationLoadNodes", [rt[:id], rt[:version]])
-        rt[:nodeids] = relationNodesRes.values.flatten.map { |ni| ni.to_i }
-        
+          
+        relationNodesRes.each do |rn|
+          rt[:members] << {
+            'type' => 'node',
+            'ref' => rn['nodeid'],
+            'role' => rn['roleStr']
+          }
+        end
+
+        # Ways
         relationWaysRes = @pgc.exec_prepared(
           "relationLoadWays", [rt[:id], rt[:version]])
-        rt[:wayids] = relationWaysRes.values.flatten.map { |wi| wi.to_i }
+
+        relationWaysRes.each do |rw|
+          rt[:members] << {
+            'type' => 'way',
+            'ref' => rw['wayid'],
+            'role' => rw['roleStr']
+          }
+        end
         
+        # Relations
         relationRelationsRes = @pgc.exec_prepared(
           "relationLoadRelations", [rt[:id], rt[:version]])
-        rt[:relationids] = relationRelationsRes.values.flatten.map { |ri| ri.to_i }
+
+        relationRelationsRes.each do |rr|
+          rt[:members] << {
+            'type' => 'relation',
+            'ref' => rr['relationid'],
+            'role' => rr['roleStr']
+          }
+        end
         
+        # Create instance
         relationInstances << RelationInstance.new(relation,
-          rt[:id], rt[:version], 
-          rt[:nodeids], rt[:wayids], rt[:relationids],
+          rt[:id], rt[:version], rt[:members],
           rt[:timestamp], rt[:changeset], 
           rt[:uid], rt[:username], rt[:tags])
       end
@@ -220,6 +249,8 @@ module OSMExplorator
         else
           return {}
       end
+      
+      warn "loading tags for #{osmobj}: #{id}.#{version}"
       
       tagsRes = @pgc.exec_prepared(prepStmt, [id, version])
       

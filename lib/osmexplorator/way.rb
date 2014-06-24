@@ -2,6 +2,8 @@
 
 require 'time'
 
+require 'osmexplorator/osmobject'
+
 module OSMExplorator
 
   # A Way is a geographical object which is identified by its id.
