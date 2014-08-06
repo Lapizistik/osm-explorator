@@ -9,10 +9,11 @@ require "osmexplorator"
 
 include OSMExplorator
 
-describe HistoryLoader do
+describe Region do
 
   it "exists" do
     true.must_equal(true)
   end
 
 end
+

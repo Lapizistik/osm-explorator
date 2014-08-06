@@ -9,7 +9,7 @@ require "osmexplorator"
 
 include OSMExplorator
 
-describe HistoryLoader do
+describe UserLoader do
 
   it "exists" do
     true.must_equal(true)

@@ -9,8 +9,8 @@ require "osmexplorator"
 
 include OSMExplorator
 
-# Relation
-describe Relation do
+# Datastore Graph Analysis
+describe Datastore do
 
   it "exists" do
     true.must_equal(true)
@@ -18,8 +18,17 @@ describe Relation do
 
 end
 
-# RelationInstance
-describe RelationInstance do
+# Region Graph Analysis
+describe Region do
+
+  it "exists" do
+    true.must_equal(true)
+  end
+
+end
+
+# General OSMObject Graph Analysis
+describe OSMObject do
 
   it "exists" do
     true.must_equal(true)

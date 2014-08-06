@@ -9,7 +9,17 @@ require "osmexplorator"
 
 include OSMExplorator
 
-describe HistoryLoader do
+# Filter
+describe Filter do
+
+  it "exists" do
+    true.must_equal(true)
+  end
+
+end
+
+# TimeFilter
+describe TimeFilter do
 
   it "exists" do
     true.must_equal(true)

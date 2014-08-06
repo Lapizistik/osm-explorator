@@ -43,3 +43,5 @@ build/
 /examples/pglogin.rb
 /examples/bamberg_insel.json
 /examples/fragments.rb
+/test/pglogin.rb
+/test/bamberg_insel.json

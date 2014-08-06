@@ -9,7 +9,17 @@ require "osmexplorator"
 
 include OSMExplorator
 
-describe HistoryLoader do
+# Node
+describe Node do
+
+  it "exists" do
+    true.must_equal(true)
+  end
+
+end
+
+# NodeInstance
+describe NodeInstance do
 
   it "exists" do
     true.must_equal(true)
